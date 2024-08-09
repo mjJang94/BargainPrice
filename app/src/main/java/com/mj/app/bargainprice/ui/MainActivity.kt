@@ -1,4 +1,4 @@
-package com.mj.app.bargainprice
+package com.mj.app.bargainprice.ui
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
