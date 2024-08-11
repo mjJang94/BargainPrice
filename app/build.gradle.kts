@@ -13,7 +13,7 @@ android {
 
     defaultConfig {
         applicationId = "com.mj.app.bargainprice"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -25,8 +25,14 @@ android {
     }
 
     buildTypes {
-        release {
+        debug {
+            isDebuggable = true
             isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        }
+        release {
+            isDebuggable = false
+            isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -38,9 +44,7 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
-        compose = true
-    }
-    buildFeatures {
+        buildConfig = true
         compose = true
     }
     composeOptions {
@@ -54,6 +58,8 @@ android {
 }
 
 dependencies {
+
+    implementation(project(":core"))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -80,6 +86,7 @@ dependencies {
     implementation(libs.androidx.compose.paging)
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.timber)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
