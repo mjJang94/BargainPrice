@@ -26,7 +26,7 @@ sealed class Alarm(
         private val intent: Intent
     ) : Alarm(
         { context.getSystemService() as AlarmManager? },
-        { PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT) },
+        { PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_IMMUTABLE) },
         { context.checkExactAlarmPerm() },
     )
 
