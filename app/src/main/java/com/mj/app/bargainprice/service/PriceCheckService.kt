@@ -1,21 +1,28 @@
-package com.mj.app.bargainprice.core.price
+package com.mj.app.bargainprice.service
 
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
+import com.mj.app.bargainprice.di.CoreBridge
 import com.mj.app.bargainprice.ui.MainActivity
-import com.mj.core.notification.NotificationHelper
+import com.mj.core.flags
 import com.mj.core.notification.NotificationType
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 import kotlin.coroutines.CoroutineContext
 
+@AndroidEntryPoint
 class PriceCheckService : Service(), CoroutineScope by CoroutineScope(Companion) {
+
+    @Inject
+    lateinit var bridge: CoreBridge
 
     companion object : CoroutineContext by SupervisorJob() + Dispatchers.Main.immediate {
         fun start(context: Context) = context.startService(intent(context))
@@ -37,10 +44,10 @@ class PriceCheckService : Service(), CoroutineScope by CoroutineScope(Companion)
                         this@PriceCheckService,
                         0,
                         MainActivity.intent(this@PriceCheckService),
-                        PendingIntent.FLAG_IMMUTABLE
+                        flags(),
                     )
                 )
-                NotificationHelper(this@PriceCheckService).showNotification(notiType)
+                bridge.fireNotification(notiType)
             }.onSuccess {
                 stopSelf(startId)
             }.onFailure { tr ->

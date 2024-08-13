@@ -11,25 +11,19 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import javax.inject.Inject
 
-object Perm {
+class PermissionHelper @Inject constructor(private val context: Context) {
 
-    fun Context.permissionCheck(permission: String): Boolean {
-        return when (ContextCompat.checkSelfPermission(this, permission)) {
+    fun permissionCheck(permission: String): Boolean {
+        return when (ContextCompat.checkSelfPermission(context, permission)) {
             PackageManager.PERMISSION_GRANTED -> true
             else -> false
         }
     }
 
-    fun ComponentActivity.requestPermission(permission: String, action: (Boolean) -> Unit) {
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { action(it) }.launch(permission)
-    }
-
-
-    fun Context.checkExactAlarmPerm(): Boolean {
-        val am = getSystemService() as AlarmManager? ?: return false
+    fun checkExactAlarmPerm(): Boolean {
+        val am = context.getSystemService() as AlarmManager? ?: return false
         return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
             true
         } else {
@@ -37,13 +31,19 @@ object Perm {
         }
     }
 
-    fun ComponentActivity.requestPermissionSetting(
-        permission: String, action: () -> Unit
-    ) = registerForActivityResult(
+    fun requestPermission(activity: ComponentActivity, permission: String, action: (Boolean) -> Unit) {
+        activity.registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { action(it) }.launch(permission)
+    }
+
+    fun requestPermissionSetting(
+        activity: ComponentActivity,
+        permission: String, action: () -> Unit,
+    ) = activity.registerForActivityResult(
         object : ActivityResultContract<Uri?, Unit>() {
             override fun createIntent(context: Context, input: Uri?): Intent =
-                Intent(permission)
-                    .apply { data = input }
+                Intent(permission).apply { data = input }
 
             override fun parseResult(resultCode: Int, intent: Intent?) = Unit
         }

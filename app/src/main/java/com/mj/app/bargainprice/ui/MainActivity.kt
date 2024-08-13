@@ -10,19 +10,18 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.annotation.RequiresApi
-import com.mj.app.bargainprice.core.price.PriceCheckService
-import com.mj.core.alarm.Alarm
-import com.mj.core.notification.NotificationHelper
-import com.mj.core.notification.NotificationType
-import com.mj.core.perm.Perm.checkExactAlarmPerm
-import com.mj.core.perm.Perm.permissionCheck
-import com.mj.core.perm.Perm.requestPermission
-import com.mj.core.perm.Perm.requestPermissionSetting
+import com.mj.app.bargainprice.di.CoreBridge
+import com.mj.app.bargainprice.service.PriceCheckService
+import com.mj.core.alarm.AlarmHelper
 import com.mj.core.theme.BargainPriceTheme
-import kotlin.time.Duration.Companion.milliseconds
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject lateinit var bridge: CoreBridge
 
     companion object {
         fun start(context: Context) =
@@ -35,9 +34,9 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         //알람 권한
-        if (!permissionCheck(Manifest.permission.POST_NOTIFICATIONS)) {
+        if (!bridge.permissionCheck(Manifest.permission.POST_NOTIFICATIONS)) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                requestPermission(Manifest.permission.POST_NOTIFICATIONS) { isGranted ->
+                bridge.requestPermission(this, Manifest.permission.POST_NOTIFICATIONS) { isGranted ->
                     if (isGranted) {
                         Toast.makeText(this, "permission granted", Toast.LENGTH_SHORT).show()
                     } else {
@@ -48,35 +47,39 @@ class MainActivity : ComponentActivity() {
         }
 
         //정확한 알람 권한
-        if (!checkExactAlarmPerm()) {
+        if (!bridge.checkExactAlarm()) {
             Toast.makeText(this, "permission denied", Toast.LENGTH_SHORT).show()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                exactAlarmLauncher.launch(Uri.fromParts("package", packageName, null))
+                bridge.requestPermissionSetting(this@MainActivity, Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM) {
+                    if (bridge.checkExactAlarm()) {
+                        Toast.makeText(this, "동작 수행", Toast.LENGTH_SHORT).show()
+                        //동작 수행
+                        bridge.setAlarm(
+                            triggerTime = System.currentTimeMillis() + 5.minutes.inWholeMilliseconds,
+                            type = AlarmHelper.ComponentType.Service,
+                            intent = PriceCheckService.intent(this@MainActivity)
+                        )
+                    } else {
+                        //동작 취소
+                        Toast.makeText(this, "동작 취소", Toast.LENGTH_SHORT).show()
+                    }
+                }.launch(
+                    Uri.fromParts("package", packageName, null)
+                )
             }
         } else {
             Toast.makeText(this, "permission granted", Toast.LENGTH_SHORT).show()
-        }
 
-        Alarm.PriceCheck(
-            context = this@MainActivity,
-            intent = PriceCheckService.intent(this@MainActivity)
-        ).set(System.currentTimeMillis() + 5.milliseconds.inWholeMilliseconds)
+            bridge.setAlarm(
+                triggerTime = System.currentTimeMillis() + 5.minutes.inWholeMilliseconds,
+                type = AlarmHelper.ComponentType.Service,
+                intent = PriceCheckService.intent(this@MainActivity)
+            )
+        }
 
         setContent {
             BargainPriceTheme {
             }
-        }
-    }
-
-
-    @RequiresApi(Build.VERSION_CODES.S)
-    private val exactAlarmLauncher = requestPermissionSetting(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM) {
-        if (checkExactAlarmPerm()) {
-            Toast.makeText(this, "동작 수행", Toast.LENGTH_SHORT).show()
-            //동작 수행
-        } else {
-            //동작 취소
-            Toast.makeText(this, "동작 취소", Toast.LENGTH_SHORT).show()
         }
     }
 }
