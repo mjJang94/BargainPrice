@@ -68,10 +68,10 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mj.core.base.SIDE_EFFECTS_KEY
 import com.mj.core.theme.BargainPriceTheme
-import com.mj.core.theme.Purple30
-import com.mj.core.theme.Sky
 import com.mj.core.theme.Typography
-import com.mj.core.theme.White
+import com.mj.core.theme.green_200
+import com.mj.core.theme.green_500
+import com.mj.core.theme.white
 import com.mj.domain.model.ShoppingData
 import com.mj.home.model.Pages
 import kotlinx.coroutines.flow.Flow
@@ -149,7 +149,7 @@ private fun HomeContent(
     TabRow(selectedTabIndex = pagerState.currentPage) {
         Pages.entries.forEachIndexed { index, title ->
             Tab(
-                modifier = Modifier.background(Color.White),
+                modifier = Modifier.background(white),
                 text = { Text(text = stringResource(id = title.resId)) },
                 selected = pagerState.currentPage == index,
                 onClick = { onPageChanged(index) },
@@ -216,10 +216,10 @@ private fun SearchBox(
                 ),
                 textStyle = TextStyle.Default.copy(fontSize = Typography.bodyMedium.fontSize),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = White,
-                    unfocusedContainerColor = White,
-                    unfocusedTextColor = Purple30,
-                    focusedTextColor = Sky,
+                    focusedContainerColor = white,
+                    unfocusedContainerColor = white,
+                    unfocusedTextColor = green_200,
+                    focusedTextColor = green_500,
                 ),
                 label = {
                     Text(text = stringResource(id = R.string.query_label))
@@ -480,7 +480,7 @@ private fun HomeScreenPreview() {
         HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White),
+                .background(white),
             state = HomeContract.State(
                 shoppingInfo = MutableStateFlow(PagingData.empty()),
                 isLoading = false,
@@ -500,7 +500,7 @@ private fun NewsRowPreview() {
         Column(
             modifier = Modifier
                 .wrapContentSize()
-                .background(Color.White)
+                .background(white)
         ) {
             NewsRow(
                 shoppingData = ShoppingData(

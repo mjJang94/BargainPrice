@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.mj.core.theme.white
 import com.mj.home.HomeContract
 import com.mj.home.HomeScreen
 import com.mj.home.HomeViewModel
@@ -21,7 +22,7 @@ fun HomeScreenDestination(
     HomeScreen(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(white),
         state = viewModel.viewState.value,
         effectFlow = viewModel.effect,
         onEventSent = { event -> viewModel.setEvent(event) },
