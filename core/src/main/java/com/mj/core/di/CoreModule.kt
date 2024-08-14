@@ -1,4 +1,4 @@
-package com.mj.app.bargainprice.di
+package com.mj.core.di
 
 import android.content.Context
 import com.mj.core.alarm.AlarmHelper
@@ -33,12 +33,4 @@ object CoreModule {
         @ApplicationContext context: Context,
         permissionHelper: PermissionHelper,
     ): AlarmHelper = AlarmHelper(context, permissionHelper)
-
-    @Provides
-    @Singleton
-    fun provideCoreBridge(
-        notiHelper: NotificationHelper,
-        permHelper: PermissionHelper,
-        alarmHelper: AlarmHelper,
-    ): CoreBridge = CoreBridgeImpl(notiHelper, permHelper, alarmHelper)
 }

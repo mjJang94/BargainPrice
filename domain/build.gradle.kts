@@ -32,6 +32,10 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.paging.common.without.android.dependencies)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+
+    implementation(libs.timber)
 }

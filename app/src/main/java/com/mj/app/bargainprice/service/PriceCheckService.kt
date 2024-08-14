@@ -5,9 +5,9 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.os.IBinder
-import com.mj.app.bargainprice.di.CoreBridge
 import com.mj.app.bargainprice.ui.MainActivity
 import com.mj.core.flags
+import com.mj.core.notification.NotificationHelper
 import com.mj.core.notification.NotificationType
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -22,7 +22,7 @@ import kotlin.coroutines.CoroutineContext
 class PriceCheckService : Service(), CoroutineScope by CoroutineScope(Companion) {
 
     @Inject
-    lateinit var bridge: CoreBridge
+    lateinit var noti: NotificationHelper
 
     companion object : CoroutineContext by SupervisorJob() + Dispatchers.Main.immediate {
         fun start(context: Context) = context.startService(intent(context))
@@ -47,7 +47,7 @@ class PriceCheckService : Service(), CoroutineScope by CoroutineScope(Companion)
                         flags(),
                     )
                 )
-                bridge.fireNotification(notiType)
+                noti.showNotification(notiType)
             }.onSuccess {
                 stopSelf(startId)
             }.onFailure { tr ->

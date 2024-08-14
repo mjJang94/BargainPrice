@@ -21,7 +21,7 @@ androidx-lifecycle-runtime = "2.8.4"
 parcelize = "2.0.0"
 hilt = "2.51.1"
 hilt-navigation-compose = "1.2.0"
-retrofit = "2.9.0"
+retrofit = "2.11.0"
 interceptor = "4.12.0"
 glide = "5.0.0-rc01"
 gson = "2.10.1"
@@ -53,6 +53,7 @@ androidx-compose-navigation = { group = "androidx.navigation", name = "navigatio
 androidx-compose-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "androidx-compose-lifecycle-viewmodel" }
 androidx-compose_paging = { group = "androidx.paging", name = "paging-compose", version.ref = "androidx-paging" }
 androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "androidx-paging" }
+androidx-paging-common_without_android_dependencies = { group = "androidx.paging", name = "paging-common", version.ref = "androidx-paging" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
 
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }

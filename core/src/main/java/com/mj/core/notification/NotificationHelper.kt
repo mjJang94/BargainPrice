@@ -4,9 +4,12 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class NotificationHelper @Inject constructor(private val context: Context) {
+class NotificationHelper @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
 
     private val CHANNEL_ID = "example_channel_id"
     private val CHANNEL_NAME = "Example Channel"

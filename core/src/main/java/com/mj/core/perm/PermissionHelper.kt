@@ -11,9 +11,12 @@ import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class PermissionHelper @Inject constructor(private val context: Context) {
+class PermissionHelper @Inject constructor(
+    @ApplicationContext private val context: Context
+) {
 
     fun permissionCheck(permission: String): Boolean {
         return when (ContextCompat.checkSelfPermission(context, permission)) {

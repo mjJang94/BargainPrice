@@ -7,11 +7,12 @@ import android.content.Intent
 import com.mj.core.flags
 import com.mj.core.perm.PermissionHelper
 import com.mj.core.timeFormatDebugFull
+import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import javax.inject.Inject
 
 class AlarmHelper @Inject constructor(
-    private val context: Context,
+    @ApplicationContext private val context: Context,
     private val permissionHelper: PermissionHelper,
 ) {
 
