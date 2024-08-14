@@ -2,16 +2,11 @@
 
 package com.mj.home
 
-import android.graphics.Color.parseColor
-import android.graphics.Typeface
-import android.text.TextUtils
-import android.widget.TextView
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -48,25 +43,23 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.text.HtmlCompat
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import com.mj.core.base.SIDE_EFFECTS_KEY
+import com.mj.core.common.HtmlText
+import com.mj.core.common.Progress
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
 import com.mj.core.theme.green_200
@@ -324,6 +317,8 @@ private fun NewsRow(
 //                )
 //            }
 //        }
+
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -407,34 +402,6 @@ fun ErrorMessage(
 }
 
 @Composable
-fun HtmlText(
-    modifier: Modifier = Modifier,
-    htmlText: String,
-    textStyle: TextStyle,
-    maxLine: Int,
-) {
-    AndroidView(
-        modifier = modifier,
-        factory = { context ->
-            TextView(context).apply {
-                ellipsize = TextUtils.TruncateAt.END
-                textSize = textStyle.fontSize.value
-                val style = when (textStyle.fontWeight?.weight) {
-                    FontWeight.Bold.weight -> Typeface.BOLD
-                    else -> Typeface.NORMAL
-                }
-                setTypeface(typeface, style)
-                setTextColor(parseColor("#000000"))
-                maxLines = maxLine
-            }
-        },
-        update = {
-            it.text = HtmlCompat.fromHtml(htmlText, HtmlCompat.FROM_HTML_MODE_COMPACT)
-        }
-    )
-}
-
-@Composable
 fun NetworkError(
     modifier: Modifier = Modifier,
     onRetryButtonClick: () -> Unit,
@@ -460,16 +427,6 @@ fun NetworkError(
         Button(onClick = { onRetryButtonClick() }) {
             Text(text = stringResource(R.string.network_error_retry_button_text).uppercase())
         }
-    }
-}
-
-@Composable
-fun Progress() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
     }
 }
 

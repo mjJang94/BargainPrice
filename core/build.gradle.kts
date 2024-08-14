@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.hilt.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -56,6 +58,13 @@ dependencies {
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.timber)
+
+    implementation(libs.glide)
+    ksp(libs.glide.ksp)
+    implementation(libs.glide.compose)
+
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
 
     implementation(libs.gson)
 }

@@ -24,6 +24,7 @@ hilt-navigation-compose = "1.2.0"
 retrofit = "2.11.0"
 interceptor = "4.12.0"
 glide = "5.0.0-rc01"
+glide-compose = "1.0.0-beta01"
 gson = "2.10.1"
 room = "2.6.1"
 junit = "4.13.2"
@@ -71,8 +72,10 @@ retrofit-interceptor = { group = "com.squareup.okhttp3", name = "logging-interce
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
+glide-ksp = { group = "com.github.bumptech.glide", name = "ksp", version.ref = "glide" }
+glide-compose = { group = "com.github.bumptech.glide", name = "compose", version.ref = "glide-compose" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
