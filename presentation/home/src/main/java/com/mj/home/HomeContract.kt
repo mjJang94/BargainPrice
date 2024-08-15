@@ -5,18 +5,19 @@ import com.mj.core.base.ViewEvent
 import com.mj.core.base.ViewSideEffect
 import com.mj.core.base.ViewState
 import com.mj.domain.model.ShoppingData
-import com.mj.home.model.HomeInfo
 import kotlinx.coroutines.flow.StateFlow
 
 class HomeContract {
 
     sealed class Event: ViewEvent {
-        data class Retry(val query: String): Event()
-        data class SearchClick(val query: String): Event()
+        data class QueryChange(val query: String): Event()
+        data object Retry : Event()
+        data object SearchClick : Event()
         data class ItemClick(val item: ShoppingData): Event()
     }
 
     data class State(
+        val query: StateFlow<String>,
         val shoppingInfo: StateFlow<PagingData<ShoppingData>>,
         val isLoading: Boolean,
         val isError: Boolean,

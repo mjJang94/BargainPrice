@@ -3,17 +3,13 @@ package com.mj.home
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import androidx.paging.map
 import com.mj.core.base.BaseViewModel
 import com.mj.domain.model.ShoppingData
 import com.mj.domain.usecase.shopping.CombinedShoppingUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -24,6 +20,7 @@ class HomeViewModel @Inject constructor(
 ) : BaseViewModel<HomeContract.Event, HomeContract.State, HomeContract.Effect>() {
 
     override fun setInitialState() = HomeContract.State(
+        query = MutableStateFlow(""),
         shoppingInfo = MutableStateFlow(PagingData.empty()),
         isLoading = false,
         isError = false,
@@ -32,17 +29,25 @@ class HomeViewModel @Inject constructor(
     override fun handleEvents(event: HomeContract.Event) {
         Timber.d("event = $event")
         when (event) {
-            is HomeContract.Event.SearchClick -> getShoppingItems(event.query)
-            is HomeContract.Event.Retry -> getShoppingItems(event.query)
+            is HomeContract.Event.QueryChange -> queryChange(event.query)
+            is HomeContract.Event.SearchClick -> getShoppingItems()
+            is HomeContract.Event.Retry -> getShoppingItems()
             is HomeContract.Event.ItemClick -> Timber.d("item click = ${event.item}")
         }
     }
 
+    private val _query: MutableStateFlow<String> = MutableStateFlow("")
+    private fun queryChange(query: String) {
+            _query.value = query
+            setState { copy(query = _query) }
+    }
+
     private val _shoppingInfo: MutableStateFlow<PagingData<ShoppingData>> = MutableStateFlow(PagingData.empty())
 
-    private fun getShoppingItems(query: String) {
+    private fun getShoppingItems() {
         viewModelScope.launch {
             setState { copy(isLoading = true) }
+            val query = _query.value
             combinedShoppingUseCases.getShoppingData(dispatcher = Dispatchers.IO, param = query)
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)

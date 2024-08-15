@@ -7,6 +7,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -35,11 +36,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
@@ -89,8 +87,7 @@ fun HomeScreen(
     )
 
     val shoppingPagingItem = state.shoppingInfo.collectAsLazyPagingItems()
-
-    var query by rememberSaveable { mutableStateOf("") }
+    val query = state.query.collectAsState()
 
     val emptyQueryMsg = stringResource(R.string.empty_query)
     val dataLoadedMsg = stringResource(R.string.home_screen_loaded_message)
@@ -106,24 +103,23 @@ fun HomeScreen(
     }
 
     Column(modifier = modifier) {
-        when {
-            state.isLoading -> Progress()
-            state.isError -> NetworkError { onEventSent(HomeContract.Event.Retry(query)) }
-            else -> HomeContent(
-                focusManager = focusManager,
-                pagerState = pagerState,
-                query = query,
-                pagingItems = shoppingPagingItem,
-                onQueryChanged = { query = it },
-                onSearchClick = { onEventSent(HomeContract.Event.SearchClick(query)) },
-                onItemClick = { onEventSent(HomeContract.Event.ItemClick(it)) },
-                onPageChanged = { index ->
-                    coroutineScope.launch {
-                        pagerState.scrollToPage(index)
-                    }
-                },
-            )
-        }
+        HomeContent(
+            focusManager = focusManager,
+            pagerState = pagerState,
+            isError = state.isError,
+            isLoading = state.isLoading,
+            provideQuery = { query.value },
+            pagingItems = shoppingPagingItem,
+            onQueryChanged = { onEventSent(HomeContract.Event.QueryChange(it)) },
+            onSearchClick = { onEventSent(HomeContract.Event.SearchClick) },
+            onItemClick = { onEventSent(HomeContract.Event.ItemClick(it)) },
+            onPageChanged = { index ->
+                coroutineScope.launch {
+                    pagerState.scrollToPage(index)
+                }
+            },
+            onRetryButtonClick = { onEventSent(HomeContract.Event.Retry) },
+        )
     }
 }
 
@@ -131,12 +127,15 @@ fun HomeScreen(
 private fun HomeContent(
     focusManager: FocusManager,
     pagerState: PagerState,
-    query: String,
+    isLoading: Boolean,
+    isError: Boolean,
+    provideQuery: () -> String,
     pagingItems: LazyPagingItems<ShoppingData>,
     onQueryChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
     onItemClick: (ShoppingData) -> Unit,
     onPageChanged: (Int) -> Unit,
+    onRetryButtonClick: () -> Unit,
 ) {
 
     TabRow(selectedTabIndex = pagerState.currentPage) {
@@ -158,11 +157,14 @@ private fun HomeContent(
             Pages.SEARCH -> {
                 ShoppingListPage(
                     focusManager = focusManager,
-                    query = query,
+                    provideQuery = provideQuery,
+                    isLoading = isLoading,
+                    isError = isError,
                     shoppingPagingItem = pagingItems,
                     onQueryChanged = onQueryChanged,
                     onSearchClick = onSearchClick,
                     onItemClick = onItemClick,
+                    onRetryButtonClick = onRetryButtonClick,
                 )
             }
 
@@ -176,7 +178,7 @@ private fun HomeContent(
 @Composable
 private fun SearchBox(
     fm: FocusManager,
-    query: String,
+    provideQuery: () -> String,
     onQueryChange: (String) -> Unit,
     onSearchClick: () -> Unit,
 ) {
@@ -194,7 +196,7 @@ private fun SearchBox(
         ) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = query,
+                value = provideQuery(),
                 onValueChange = onQueryChange,
                 maxLines = 1,
                 keyboardOptions = KeyboardOptions(
@@ -225,28 +227,34 @@ private fun SearchBox(
 @Composable
 private fun ShoppingListPage(
     focusManager: FocusManager,
-    query: String,
+    provideQuery: () -> String,
+    isLoading: Boolean,
+    isError: Boolean,
     shoppingPagingItem: LazyPagingItems<ShoppingData>,
     onQueryChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
     onItemClick: (ShoppingData) -> Unit,
+    onRetryButtonClick: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
 
         SearchBox(
             fm = focusManager,
-            query = query,
+            provideQuery = provideQuery,
             onQueryChange = onQueryChanged,
             onSearchClick = onSearchClick,
         )
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .weight(1f),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+            contentAlignment = Alignment.Center
         ) {
+            when {
+                isLoading -> Progress()
+                isError -> NetworkError(onRetryButtonClick = onRetryButtonClick)
+            }
 
             if (shoppingPagingItem.itemCount < 1) {
                 Text(
@@ -281,6 +289,7 @@ private fun ShoppingListPage(
                                         onClickRetry = { retry() })
                                 }
                             }
+
                             loadState.append is LoadState.Loading -> {
                                 item { LoadingNextPageItem(modifier = Modifier) }
                             }
@@ -439,6 +448,7 @@ private fun HomeScreenPreview() {
                 .fillMaxSize()
                 .background(white),
             state = HomeContract.State(
+                query = MutableStateFlow(""),
                 shoppingInfo = MutableStateFlow(PagingData.empty()),
                 isLoading = false,
                 isError = false,
