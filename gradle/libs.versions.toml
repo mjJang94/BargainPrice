@@ -18,6 +18,7 @@ androidx-paging = "3.3.2"
 androidx-lifecycle-runtime = "2.8.4"
 
 
+kotlinx-collections = "0.3.5"
 parcelize = "2.0.0"
 hilt = "2.51.1"
 hilt-navigation-compose = "1.2.0"
@@ -27,11 +28,6 @@ glide = "5.0.0-rc01"
 glide-compose = "1.0.0-beta01"
 gson = "2.10.1"
 room = "2.6.1"
-junit = "4.13.2"
-junitVersion = "1.2.1"
-espressoCore = "3.6.1"
-appcompat = "1.7.0"
-material = "1.12.0"
 timber = "5.0.1"
 
 
@@ -65,6 +61,7 @@ room_runtime = { group = "androidx.room", name = "room-runtime", version.ref = "
 room_compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room"}
 room_ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room"}
 
+kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinx-collections" }
 hilt = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
