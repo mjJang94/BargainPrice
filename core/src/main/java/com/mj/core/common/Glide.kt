@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.DefaultAlpha
 import androidx.compose.ui.layout.ContentScale
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.Placeholder
-import com.bumptech.glide.integration.compose.GlideImage as GImage
 import com.bumptech.glide.integration.compose.RequestBuilderTransform
+import com.bumptech.glide.integration.compose.GlideImage as GImage
 
 @Stable
 data class ImmutableGlideImage(val data: Any?)

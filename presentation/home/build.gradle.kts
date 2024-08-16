@@ -59,6 +59,10 @@ dependencies {
 
     implementation(libs.kotlinx.collections.immutable)
 
+    implementation(libs.glide)
+    ksp(libs.glide.ksp)
+    implementation(libs.glide.compose)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 

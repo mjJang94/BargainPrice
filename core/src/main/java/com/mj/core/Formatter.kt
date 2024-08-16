@@ -2,6 +2,7 @@
 
 package com.mj.core
 
+import java.text.DecimalFormat
 import java.time.Clock
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -35,3 +36,6 @@ fun formatNow(pattern: String, locale: Locale = Locale.getDefault()): String =
 
 fun String.toDateTimeFormatter(locale: Locale = Locale.getDefault()): DateTimeFormatter =
     DateTimeFormatter.ofPattern(this, locale)
+
+fun String.toPriceFormat() : String? =
+    runCatching { DecimalFormat("#,###").format(this.toInt()) }.getOrNull()

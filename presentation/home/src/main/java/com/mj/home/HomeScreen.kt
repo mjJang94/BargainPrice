@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalFoundationApi::class)
+@file:OptIn(ExperimentalFoundationApi::class, ExperimentalGlideComposeApi::class)
 
 package com.mj.home
 
@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -36,15 +38,20 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -55,14 +62,18 @@ import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.mj.core.base.SIDE_EFFECTS_KEY
 import com.mj.core.common.HtmlText
-import com.mj.core.common.Progress
+import com.mj.core.common.ImmutableGlideImage
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
 import com.mj.core.theme.green_200
 import com.mj.core.theme.green_500
 import com.mj.core.theme.white
+import com.mj.core.toPriceFormat
 import com.mj.domain.model.ShoppingData
 import com.mj.home.model.Pages
 import kotlinx.coroutines.flow.Flow
@@ -70,6 +81,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 @Composable
 fun HomeScreen(
@@ -87,20 +99,19 @@ fun HomeScreen(
     )
 
     val shoppingPagingItem = state.shoppingInfo.collectAsLazyPagingItems()
-    val query = state.query.collectAsState()
 
     val emptyQueryMsg = stringResource(R.string.empty_query)
-    val dataLoadedMsg = stringResource(R.string.home_screen_loaded_message)
 
     LaunchedEffect(SIDE_EFFECTS_KEY) {
         effectFlow?.onEach { effect ->
             when (effect) {
                 is HomeContract.Effect.EmptyQuery -> Toast.makeText(context, emptyQueryMsg, Toast.LENGTH_SHORT).show()
-                is HomeContract.Effect.DataLoaded -> Toast.makeText(context, dataLoadedMsg, Toast.LENGTH_SHORT).show()
                 is HomeContract.Effect.Navigation.ToDetail -> onNavigationRequested(effect)
             }
         }?.collect()
     }
+
+    Timber.d("isLoading state1 = ${state.isLoading}")
 
     Column(modifier = modifier) {
         HomeContent(
@@ -108,9 +119,9 @@ fun HomeScreen(
             pagerState = pagerState,
             isError = state.isError,
             isLoading = state.isLoading,
-            provideQuery = { query.value },
             pagingItems = shoppingPagingItem,
             onQueryChanged = { onEventSent(HomeContract.Event.QueryChange(it)) },
+            onDataLoaded = { onEventSent(HomeContract.Event.DataLoaded) },
             onSearchClick = { onEventSent(HomeContract.Event.SearchClick) },
             onItemClick = { onEventSent(HomeContract.Event.ItemClick(it)) },
             onPageChanged = { index ->
@@ -129,10 +140,10 @@ private fun HomeContent(
     pagerState: PagerState,
     isLoading: Boolean,
     isError: Boolean,
-    provideQuery: () -> String,
     pagingItems: LazyPagingItems<ShoppingData>,
     onQueryChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
+    onDataLoaded: () -> Unit,
     onItemClick: (ShoppingData) -> Unit,
     onPageChanged: (Int) -> Unit,
     onRetryButtonClick: () -> Unit,
@@ -157,11 +168,11 @@ private fun HomeContent(
             Pages.SEARCH -> {
                 ShoppingListPage(
                     focusManager = focusManager,
-                    provideQuery = provideQuery,
                     isLoading = isLoading,
                     isError = isError,
                     shoppingPagingItem = pagingItems,
                     onQueryChanged = onQueryChanged,
+                    onDataLoaded = onDataLoaded,
                     onSearchClick = onSearchClick,
                     onItemClick = onItemClick,
                     onRetryButtonClick = onRetryButtonClick,
@@ -178,10 +189,12 @@ private fun HomeContent(
 @Composable
 private fun SearchBox(
     fm: FocusManager,
-    provideQuery: () -> String,
     onQueryChange: (String) -> Unit,
     onSearchClick: () -> Unit,
 ) {
+
+    var query by remember { mutableStateOf("") }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -196,8 +209,11 @@ private fun SearchBox(
         ) {
             OutlinedTextField(
                 modifier = Modifier.weight(1f),
-                value = provideQuery(),
-                onValueChange = onQueryChange,
+                value = query,
+                onValueChange = { insert ->
+                    query = insert
+                    onQueryChange(insert)
+                },
                 maxLines = 1,
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
@@ -227,10 +243,10 @@ private fun SearchBox(
 @Composable
 private fun ShoppingListPage(
     focusManager: FocusManager,
-    provideQuery: () -> String,
     isLoading: Boolean,
     isError: Boolean,
     shoppingPagingItem: LazyPagingItems<ShoppingData>,
+    onDataLoaded: () -> Unit,
     onQueryChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
     onItemClick: (ShoppingData) -> Unit,
@@ -240,7 +256,6 @@ private fun ShoppingListPage(
 
         SearchBox(
             fm = focusManager,
-            provideQuery = provideQuery,
             onQueryChange = onQueryChanged,
             onSearchClick = onSearchClick,
         )
@@ -251,25 +266,30 @@ private fun ShoppingListPage(
                 .weight(1f),
             contentAlignment = Alignment.Center
         ) {
-            when {
-                isLoading -> Progress()
-                isError -> NetworkError(onRetryButtonClick = onRetryButtonClick)
+
+            if (isError) {
+                NetworkError(onRetryButtonClick = onRetryButtonClick)
             }
 
-            if (shoppingPagingItem.itemCount < 1) {
+            if (shoppingPagingItem.itemCount < 1 && !isLoading) {
                 Text(
                     text = stringResource(id = R.string.home_screen_loaded_result_empty)
                 )
             } else {
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(top = 5.dp),
                     contentPadding = PaddingValues(all = 10.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    items(shoppingPagingItem.itemCount) { index ->
+                    items(
+                        count = shoppingPagingItem.itemCount,
+                        key = shoppingPagingItem.itemKey { it.productId },
+                    ) { index ->
                         val item = shoppingPagingItem[index] ?: return@items
                         NewsRow(
-                            shoppingData = item,
+                            item = item,
                             onItemClick = onItemClick,
                         )
                     }
@@ -281,6 +301,7 @@ private fun ShoppingListPage(
                             }
 
                             loadState.refresh is LoadState.Error -> {
+                                onDataLoaded()
                                 val error = shoppingPagingItem.loadState.refresh as LoadState.Error
                                 item {
                                     ErrorMessage(
@@ -291,7 +312,7 @@ private fun ShoppingListPage(
                             }
 
                             loadState.append is LoadState.Loading -> {
-                                item { LoadingNextPageItem(modifier = Modifier) }
+                                item { LoadingPageItem(modifier = Modifier) }
                             }
                         }
                     }
@@ -303,58 +324,104 @@ private fun ShoppingListPage(
 
 @Composable
 private fun NewsRow(
-    shoppingData: ShoppingData,
+    item: ShoppingData,
     onItemClick: (ShoppingData) -> Unit,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-//        TextButton(onClick = { onScrapClick(isAdd, shoppingData) }) {
-//            Box(
-//                modifier = Modifier
-//                    .background(
-//                        color = Color.Yellow,
-//                        shape = RoundedCornerShape(10.dp)
-//                    )
-//                    .padding(10.dp)
-//            ) {
-//                Text(
-//                    text = when (isAdd) {
-//                        true -> stringResource(id = R.string.scrap)
-//                        else -> stringResource(id = R.string.delete)
-//                    },
-//                    style = Typography.bodySmall,
-//                    color = Color.Black,
-//                )
-//            }
-//        }
-
+    Row(
+        modifier = Modifier.wrapContentSize(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Box(modifier = Modifier.wrapContentSize()) {
+            ImmutableGlideImage(
+                modifier = Modifier
+                    .size(120.dp)
+                    .padding(all = 10.dp),
+                model = item.image,
+            )
+        }
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
                 .wrapContentHeight()
-                .clickable { onItemClick(shoppingData) }
+                .clickable { onItemClick(item) },
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             HtmlText(
-                htmlText = shoppingData.title,
-                textStyle = Typography.titleLarge,
+                htmlText = item.title,
+                textStyle = Typography.titleMedium,
                 maxLine = 2,
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            HtmlText(
-                htmlText = shoppingData.mallName,
-                textStyle = Typography.bodyMedium,
-                maxLine = 10,
+            //최고가
+            PriceLabel(
+                isHighest = true,
+                price = item.highestPrice,
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            //최저가
+            PriceLabel(
+                isHighest = false,
+                price = item.lowestPrice,
+            )
+
+            //판매처
+            Text(
+                text = "${stringResource(id = R.string.mall_name)} ${item.mallName}",
+                style = Typography.bodySmall,
+                color = Color.Gray,
+            )
+
+            //브랜드
+            Text(
+                text = "${stringResource(id = R.string.brand)} ${item.brand.ifEmpty { stringResource(id = R.string.unknown) }}",
+                style = Typography.bodySmall,
+                color = Color.Gray,
+            )
+
+            //제조사
+            Text(
+                text = "${stringResource(id = R.string.maker)} ${item.maker.ifEmpty { stringResource(id = R.string.unknown) }}",
+                style = Typography.bodySmall,
+                color = Color.Gray,
+            )
+
+            //카테고리
+            Text(
+                text = "${item.category1} > ${item.category2} > ${item.category3} > ${item.category4}",
+                style = Typography.bodySmall,
+                color = Color.Gray,
+            )
+        }
+    }
+}
+
+@Composable
+fun PriceLabel(
+    isHighest: Boolean,
+    price: String,
+) {
+    if (price.isNotBlank()) {
+        Row {
+            if (!isHighest) {
+                Text(
+                    text = stringResource(id = R.string.lowest_price),
+                    style = Typography.bodyMedium,
+                )
+            }
+
+            Spacer(modifier = Modifier.width(5.dp))
 
             Text(
-                text = shoppingData.brand,
-                style = Typography.bodySmall,
-                maxLines = 1,
+                text = price.toPriceFormat()?.let { it + stringResource(id = R.string.price_won) } ?: stringResource(id = R.string.unknown_price),
+                style = Typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = when (isHighest) {
+                    true -> Color.Red
+                    else -> Color.Blue
+                }
             )
         }
     }
@@ -367,18 +434,20 @@ fun PageLoader(modifier: Modifier = Modifier) {
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        CircularProgressIndicator()
+
         Text(
+            modifier = Modifier.padding(top = 20.dp),
             text = stringResource(id = R.string.fetch_data_from_server),
             color = MaterialTheme.colorScheme.primary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
-        CircularProgressIndicator(Modifier.padding(top = 10.dp))
     }
 }
 
 @Composable
-fun LoadingNextPageItem(modifier: Modifier) {
+fun LoadingPageItem(modifier: Modifier) {
     CircularProgressIndicator(
         modifier = modifier
             .fillMaxWidth()
@@ -450,44 +519,12 @@ private fun HomeScreenPreview() {
             state = HomeContract.State(
                 query = MutableStateFlow(""),
                 shoppingInfo = MutableStateFlow(PagingData.empty()),
-                isLoading = false,
+                isLoading = true,
                 isError = false,
             ),
             effectFlow = null,
             onEventSent = {},
             onNavigationRequested = {},
         )
-    }
-}
-
-@Composable
-@Preview
-private fun NewsRowPreview() {
-    BargainPriceTheme {
-        Column(
-            modifier = Modifier
-                .wrapContentSize()
-                .background(white)
-        ) {
-            NewsRow(
-                shoppingData = ShoppingData(
-                    title = "제목입니다.",
-                    link = "http://app.yonhapnews.co.kr/YNA/Basic/SNS/r.aspx?c=AKR20160926019000008&did=1195m",
-                    image = "",
-                    lowestPrice = "10000",
-                    highestPrice = "10000",
-                    mallName = "10000",
-                    productId = "1",
-                    productType = "1",
-                    maker = "maker",
-                    brand = "brand",
-                    category1 = "category1",
-                    category2 = "category2",
-                    category3 = "category3",
-                    category4 = "category4",
-                ),
-                onItemClick = {},
-            )
-        }
     }
 }

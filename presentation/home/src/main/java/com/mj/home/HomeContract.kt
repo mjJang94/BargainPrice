@@ -9,11 +9,12 @@ import kotlinx.coroutines.flow.StateFlow
 
 class HomeContract {
 
-    sealed class Event: ViewEvent {
-        data class QueryChange(val query: String): Event()
+    sealed class Event : ViewEvent {
+        data class QueryChange(val query: String) : Event()
         data object Retry : Event()
         data object SearchClick : Event()
-        data class ItemClick(val item: ShoppingData): Event()
+        data object DataLoaded : Event()
+        data class ItemClick(val item: ShoppingData) : Event()
     }
 
     data class State(
@@ -21,14 +22,13 @@ class HomeContract {
         val shoppingInfo: StateFlow<PagingData<ShoppingData>>,
         val isLoading: Boolean,
         val isError: Boolean,
-    ): ViewState
+    ) : ViewState
 
-    sealed class Effect: ViewSideEffect {
-        data object DataLoaded: Effect()
-        data object EmptyQuery: Effect()
+    sealed class Effect : ViewSideEffect {
+        data object EmptyQuery : Effect()
 
-        sealed class Navigation: Effect() {
-            data class ToDetail(val url: String): Navigation()
+        sealed class Navigation : Effect() {
+            data class ToDetail(val url: String) : Navigation()
         }
     }
 }

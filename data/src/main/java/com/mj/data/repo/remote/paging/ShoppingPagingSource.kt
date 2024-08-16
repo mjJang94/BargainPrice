@@ -23,7 +23,7 @@ class ShoppingPagingSource(
             LoadResult.Page(
                 data = shoppingData.items.translate(),
                 prevKey = if (currentPage == 1) null else currentPage - 1,
-                nextKey = shoppingData.start + 1,
+                nextKey = if (shoppingData.total < MAX_PAGE_SIZE) null else shoppingData.start + 1,
             )
         } catch (e: Exception) {
             return LoadResult.Error(e)
