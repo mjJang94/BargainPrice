@@ -21,10 +21,10 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -45,6 +45,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -64,10 +65,11 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.mj.core.base.SIDE_EFFECTS_KEY
 import com.mj.core.common.HtmlText
 import com.mj.core.common.ImmutableGlideImage
+import com.mj.core.common.Progress
+import com.mj.core.common.appendCategoryData
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
 import com.mj.core.theme.green_200
@@ -267,52 +269,54 @@ private fun ShoppingListPage(
             contentAlignment = Alignment.Center
         ) {
 
-            if (isError) {
-                NetworkError(onRetryButtonClick = onRetryButtonClick)
-            }
-
-            if (shoppingPagingItem.itemCount < 1 && !isLoading) {
-                Text(
-                    text = stringResource(id = R.string.home_screen_loaded_result_empty)
-                )
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(top = 5.dp),
-                    contentPadding = PaddingValues(all = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    items(
-                        count = shoppingPagingItem.itemCount,
-                        key = shoppingPagingItem.itemKey { it.productId },
-                    ) { index ->
-                        val item = shoppingPagingItem[index] ?: return@items
-                        NewsRow(
-                            item = item,
-                            onItemClick = onItemClick,
+            when {
+                isError -> NetworkError(onRetryButtonClick = onRetryButtonClick)
+                isLoading -> Progress()
+                else -> {
+                    if (shoppingPagingItem.itemCount < 1) {
+                        Text(
+                            text = stringResource(id = R.string.home_screen_loaded_result_empty)
                         )
-                    }
-
-                    shoppingPagingItem.apply {
-                        when {
-                            loadState.refresh is LoadState.Loading -> {
-                                item { PageLoader(modifier = Modifier.fillParentMaxSize()) }
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(top = 5.dp),
+                            contentPadding = PaddingValues(all = 10.dp),
+                            verticalArrangement = Arrangement.spacedBy(5.dp)
+                        ) {
+                            items(
+                                count = shoppingPagingItem.itemCount,
+                                key = shoppingPagingItem.itemKey { it.productId },
+                            ) { index ->
+                                val item = shoppingPagingItem[index] ?: return@items
+                                NewsRow(
+                                    item = item,
+                                    onItemClick = onItemClick,
+                                )
                             }
 
-                            loadState.refresh is LoadState.Error -> {
-                                onDataLoaded()
-                                val error = shoppingPagingItem.loadState.refresh as LoadState.Error
-                                item {
-                                    ErrorMessage(
-                                        modifier = Modifier.fillParentMaxSize(),
-                                        message = error.error.localizedMessage!!,
-                                        onClickRetry = { retry() })
+                            shoppingPagingItem.apply {
+                                when {
+                                    loadState.refresh is LoadState.Loading -> {
+                                        item { PageLoader(modifier = Modifier.fillParentMaxSize()) }
+                                    }
+
+                                    loadState.refresh is LoadState.Error -> {
+                                        onDataLoaded()
+                                        val error = shoppingPagingItem.loadState.refresh as LoadState.Error
+                                        item {
+                                            ErrorMessage(
+                                                modifier = Modifier.fillParentMaxSize(),
+                                                message = error.error.localizedMessage!!,
+                                                onClickRetry = { retry() })
+                                        }
+                                    }
+
+                                    loadState.append is LoadState.Loading -> {
+                                        item { LoadingPageItem(modifier = Modifier) }
+                                    }
                                 }
-                            }
-
-                            loadState.append is LoadState.Loading -> {
-                                item { LoadingPageItem(modifier = Modifier) }
                             }
                         }
                     }
@@ -328,7 +332,10 @@ private fun NewsRow(
     onItemClick: (ShoppingData) -> Unit,
 ) {
     Row(
-        modifier = Modifier.wrapContentSize(),
+        modifier = Modifier
+            .wrapContentSize()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onItemClick(item) },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
@@ -344,8 +351,7 @@ private fun NewsRow(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .wrapContentHeight()
-                .clickable { onItemClick(item) },
+                .wrapContentHeight(),
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
@@ -390,7 +396,7 @@ private fun NewsRow(
 
             //카테고리
             Text(
-                text = "${item.category1} > ${item.category2} > ${item.category3} > ${item.category4}",
+                text = "${stringResource(id = R.string.category)} ${appendCategoryData(item.category1, item.category2, item.category3, item.category4)}",
                 style = Typography.bodySmall,
                 color = Color.Gray,
             )

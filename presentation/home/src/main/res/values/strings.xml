@@ -19,6 +19,7 @@
     <string name="mall_name">쇼핑몰 :</string>
     <string name="maker">제조사 :</string>
     <string name="brand">브랜드 :</string>
+    <string name="category">카테고리 :</string>
     <string name="unknown">정보 미제공</string>
     <string name="unknown_price">가격정보 미제공</string>
 </resources>
