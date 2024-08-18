@@ -4,6 +4,7 @@ package com.mj.home
 
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -24,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -50,6 +52,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -68,7 +71,6 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.core.base.SIDE_EFFECTS_KEY
 import com.mj.core.common.HtmlText
 import com.mj.core.common.ImmutableGlideImage
-import com.mj.core.common.Progress
 import com.mj.core.common.appendCategoryData
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
@@ -76,14 +78,13 @@ import com.mj.core.theme.green_200
 import com.mj.core.theme.green_500
 import com.mj.core.theme.white
 import com.mj.core.toPriceFormat
-import com.mj.domain.model.ShoppingData
+import com.mj.home.HomeViewModel.ShoppingItem
 import com.mj.home.model.Pages
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 @Composable
 fun HomeScreen(
@@ -113,18 +114,14 @@ fun HomeScreen(
         }?.collect()
     }
 
-    Timber.d("isLoading state1 = ${state.isLoading}")
-
     Column(modifier = modifier) {
         HomeContent(
             focusManager = focusManager,
             pagerState = pagerState,
-            isError = state.isError,
-            isLoading = state.isLoading,
             pagingItems = shoppingPagingItem,
             onQueryChanged = { onEventSent(HomeContract.Event.QueryChange(it)) },
-            onDataLoaded = { onEventSent(HomeContract.Event.DataLoaded) },
             onSearchClick = { onEventSent(HomeContract.Event.SearchClick) },
+            onFavoriteClick = { onEventSent(HomeContract.Event.AddFavorite(it)) },
             onItemClick = { onEventSent(HomeContract.Event.ItemClick(it)) },
             onPageChanged = { index ->
                 coroutineScope.launch {
@@ -140,13 +137,11 @@ fun HomeScreen(
 private fun HomeContent(
     focusManager: FocusManager,
     pagerState: PagerState,
-    isLoading: Boolean,
-    isError: Boolean,
-    pagingItems: LazyPagingItems<ShoppingData>,
+    pagingItems: LazyPagingItems<ShoppingItem>,
     onQueryChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
-    onDataLoaded: () -> Unit,
-    onItemClick: (ShoppingData) -> Unit,
+    onFavoriteClick: (ShoppingItem) -> Unit,
+    onItemClick: (ShoppingItem) -> Unit,
     onPageChanged: (Int) -> Unit,
     onRetryButtonClick: () -> Unit,
 ) {
@@ -170,18 +165,16 @@ private fun HomeContent(
             Pages.SEARCH -> {
                 ShoppingListPage(
                     focusManager = focusManager,
-                    isLoading = isLoading,
-                    isError = isError,
                     shoppingPagingItem = pagingItems,
                     onQueryChanged = onQueryChanged,
-                    onDataLoaded = onDataLoaded,
                     onSearchClick = onSearchClick,
                     onItemClick = onItemClick,
+                    onFavoriteClick = onFavoriteClick,
                     onRetryButtonClick = onRetryButtonClick,
                 )
             }
 
-            Pages.SCRAP -> {
+            Pages.FAVORITE -> {
                 Text(text = "asd")
             }
         }
@@ -245,17 +238,14 @@ private fun SearchBox(
 @Composable
 private fun ShoppingListPage(
     focusManager: FocusManager,
-    isLoading: Boolean,
-    isError: Boolean,
-    shoppingPagingItem: LazyPagingItems<ShoppingData>,
-    onDataLoaded: () -> Unit,
+    shoppingPagingItem: LazyPagingItems<ShoppingItem>,
     onQueryChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
-    onItemClick: (ShoppingData) -> Unit,
+    onFavoriteClick: (ShoppingItem) -> Unit,
+    onItemClick: (ShoppingItem) -> Unit,
     onRetryButtonClick: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-
         SearchBox(
             fm = focusManager,
             onQueryChange = onQueryChanged,
@@ -268,54 +258,46 @@ private fun ShoppingListPage(
                 .weight(1f),
             contentAlignment = Alignment.Center
         ) {
-
             when {
-                isError -> NetworkError(onRetryButtonClick = onRetryButtonClick)
-                isLoading -> Progress()
+                shoppingPagingItem.itemCount < 1 -> EmptyPage(modifier = Modifier.fillMaxSize())
                 else -> {
-                    if (shoppingPagingItem.itemCount < 1) {
-                        Text(
-                            text = stringResource(id = R.string.home_screen_loaded_result_empty)
-                        )
-                    } else {
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(top = 5.dp),
-                            contentPadding = PaddingValues(all = 10.dp),
-                            verticalArrangement = Arrangement.spacedBy(5.dp)
-                        ) {
-                            items(
-                                count = shoppingPagingItem.itemCount,
-                                key = shoppingPagingItem.itemKey { it.productId },
-                            ) { index ->
-                                val item = shoppingPagingItem[index] ?: return@items
-                                NewsRow(
-                                    item = item,
-                                    onItemClick = onItemClick,
-                                )
-                            }
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 5.dp),
+                        contentPadding = PaddingValues(all = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        items(
+                            count = shoppingPagingItem.itemCount,
+                            key = shoppingPagingItem.itemKey { it.productId },
+                        ) { index ->
+                            val item = shoppingPagingItem[index] ?: return@items
+                            NewsRow(
+                                item = item,
+                                onFavoriteClick = onFavoriteClick,
+                                onItemClick = onItemClick,
+                            )
+                        }
 
-                            shoppingPagingItem.apply {
-                                when {
-                                    loadState.refresh is LoadState.Loading -> {
-                                        item { PageLoader(modifier = Modifier.fillParentMaxSize()) }
-                                    }
+                        shoppingPagingItem.apply {
+                            when {
+                                loadState.refresh is LoadState.Loading -> {
+                                    item { PageLoader(modifier = Modifier.fillParentMaxSize()) }
+                                }
 
-                                    loadState.refresh is LoadState.Error -> {
-                                        onDataLoaded()
-                                        val error = shoppingPagingItem.loadState.refresh as LoadState.Error
-                                        item {
-                                            ErrorMessage(
-                                                modifier = Modifier.fillParentMaxSize(),
-                                                message = error.error.localizedMessage!!,
-                                                onClickRetry = { retry() })
-                                        }
+                                loadState.refresh is LoadState.Error -> {
+                                    val error = shoppingPagingItem.loadState.refresh as LoadState.Error
+                                    item {
+                                        ErrorMessage(
+                                            modifier = Modifier.fillParentMaxSize(),
+                                            message = error.error.localizedMessage!!,
+                                            onClickRetry = { onRetryButtonClick() })
                                     }
+                                }
 
-                                    loadState.append is LoadState.Loading -> {
-                                        item { LoadingPageItem(modifier = Modifier) }
-                                    }
+                                loadState.append is LoadState.Loading -> {
+                                    item { LoadingPageItem(modifier = Modifier) }
                                 }
                             }
                         }
@@ -328,23 +310,36 @@ private fun ShoppingListPage(
 
 @Composable
 private fun NewsRow(
-    item: ShoppingData,
-    onItemClick: (ShoppingData) -> Unit,
+    item: ShoppingItem,
+    onFavoriteClick: (ShoppingItem) -> Unit,
+    onItemClick: (ShoppingItem) -> Unit,
 ) {
     Row(
         modifier = Modifier
             .wrapContentSize()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(12.dp))
             .clickable { onItemClick(item) },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
-        Box(modifier = Modifier.wrapContentSize()) {
+        Box(modifier = Modifier
+            .size(120.dp)
+            .padding(all = 5.dp)
+        ) {
             ImmutableGlideImage(
-                modifier = Modifier
-                    .size(120.dp)
-                    .padding(all = 10.dp),
+                modifier = Modifier.fillMaxSize(),
                 model = item.image,
+            )
+
+            Image(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .clickable { onFavoriteClick(item) },
+                painter = when (item.isFavorite) {
+                    true -> painterResource(id = R.drawable.baseline_star_24)
+                    else -> painterResource(id = R.drawable.baseline_star_border_24)
+                },
+                contentDescription = ""
             )
         }
 
@@ -430,6 +425,22 @@ fun PriceLabel(
                 }
             )
         }
+    }
+}
+
+@Composable
+fun EmptyPage(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = stringResource(id = R.string.empty_query),
+            color = MaterialTheme.colorScheme.primary,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
     }
 }
 
@@ -525,8 +536,6 @@ private fun HomeScreenPreview() {
             state = HomeContract.State(
                 query = MutableStateFlow(""),
                 shoppingInfo = MutableStateFlow(PagingData.empty()),
-                isLoading = true,
-                isError = false,
             ),
             effectFlow = null,
             onEventSent = {},

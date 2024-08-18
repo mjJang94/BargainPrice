@@ -26,6 +26,7 @@ class ShoppingPagingSource(
                 nextKey = if (shoppingData.total < MAX_PAGE_SIZE) null else shoppingData.start + 1,
             )
         } catch (e: Exception) {
+            Timber.d("error = $e")
             return LoadResult.Error(e)
         }
     }

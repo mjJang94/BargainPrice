@@ -4,5 +4,5 @@ import com.mj.home.R
 
 enum class Pages(val resId: Int) {
     SEARCH(resId = R.string.search),
-    SCRAP(resId = R.string.scrap),
+    FAVORITE(resId = R.string.favorite),
 }
