@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,17 +30,20 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
+import androidx.compose.material.Divider
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,10 +62,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
@@ -74,12 +78,17 @@ import com.mj.core.common.ImmutableGlideImage
 import com.mj.core.common.appendCategoryData
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
+import com.mj.core.theme.green_100
 import com.mj.core.theme.green_200
+import com.mj.core.theme.green_300
 import com.mj.core.theme.green_500
+import com.mj.core.theme.green_700
 import com.mj.core.theme.white
 import com.mj.core.toPriceFormat
 import com.mj.home.HomeViewModel.ShoppingItem
 import com.mj.home.model.Pages
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -97,11 +106,13 @@ fun HomeScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
+
     val pagerState = rememberPagerState(
         pageCount = { Pages.entries.size }
     )
-
-    val shoppingPagingItem = state.shoppingInfo.collectAsLazyPagingItems()
+    val shoppingItems = state.shoppingItems.collectAsLazyPagingItems()
+    val favoriteItem by state.favoriteShoppingItems.collectAsStateWithLifecycle()
+    val priceAlarmActivated by state.priceAlarmActivated.collectAsState()
 
     val emptyQueryMsg = stringResource(R.string.empty_query)
 
@@ -118,10 +129,14 @@ fun HomeScreen(
         HomeContent(
             focusManager = focusManager,
             pagerState = pagerState,
-            pagingItems = shoppingPagingItem,
+            priceAlarmActivated = priceAlarmActivated,
+            shoppingItems = shoppingItems,
+            favoriteItems = remember(favoriteItem) { favoriteItem.toImmutableList() },
+            onPriceAlarmActive = { onEventSent(HomeContract.Event.AlarmActive(it)) },
             onQueryChanged = { onEventSent(HomeContract.Event.QueryChange(it)) },
             onSearchClick = { onEventSent(HomeContract.Event.SearchClick) },
-            onFavoriteClick = { onEventSent(HomeContract.Event.AddFavorite(it)) },
+            onAddFavoriteClick = { onEventSent(HomeContract.Event.AddFavorite(it)) },
+            onDeleteFavoriteClick = { onEventSent(HomeContract.Event.DeleteFavorite(it)) },
             onItemClick = { onEventSent(HomeContract.Event.ItemClick(it)) },
             onPageChanged = { index ->
                 coroutineScope.launch {
@@ -137,10 +152,14 @@ fun HomeScreen(
 private fun HomeContent(
     focusManager: FocusManager,
     pagerState: PagerState,
-    pagingItems: LazyPagingItems<ShoppingItem>,
+    priceAlarmActivated: Boolean,
+    shoppingItems: LazyPagingItems<ShoppingItem>,
+    favoriteItems: ImmutableList<ShoppingItem>,
+    onPriceAlarmActive: (Boolean) -> Unit,
     onQueryChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
-    onFavoriteClick: (ShoppingItem) -> Unit,
+    onAddFavoriteClick: (ShoppingItem) -> Unit,
+    onDeleteFavoriteClick: (String) -> Unit,
     onItemClick: (ShoppingItem) -> Unit,
     onPageChanged: (Int) -> Unit,
     onRetryButtonClick: () -> Unit,
@@ -165,17 +184,24 @@ private fun HomeContent(
             Pages.SEARCH -> {
                 ShoppingListPage(
                     focusManager = focusManager,
-                    shoppingPagingItem = pagingItems,
+                    shoppingItems = shoppingItems,
                     onQueryChanged = onQueryChanged,
                     onSearchClick = onSearchClick,
                     onItemClick = onItemClick,
-                    onFavoriteClick = onFavoriteClick,
+                    onAddFavoriteClick = onAddFavoriteClick,
+                    onDeleteFavoriteClick = onDeleteFavoriteClick,
                     onRetryButtonClick = onRetryButtonClick,
                 )
             }
 
             Pages.FAVORITE -> {
-                Text(text = "asd")
+                FavoriteListPage(
+                    priceAlarmActivated = priceAlarmActivated,
+                    favoriteItem = favoriteItems,
+                    onPriceAlarmActive = onPriceAlarmActive,
+                    onDeleteFavoriteClick = onDeleteFavoriteClick,
+                    onItemClick = onItemClick,
+                )
             }
         }
     }
@@ -238,10 +264,11 @@ private fun SearchBox(
 @Composable
 private fun ShoppingListPage(
     focusManager: FocusManager,
-    shoppingPagingItem: LazyPagingItems<ShoppingItem>,
+    shoppingItems: LazyPagingItems<ShoppingItem>,
     onQueryChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
-    onFavoriteClick: (ShoppingItem) -> Unit,
+    onAddFavoriteClick: (ShoppingItem) -> Unit,
+    onDeleteFavoriteClick: (String) -> Unit,
     onItemClick: (ShoppingItem) -> Unit,
     onRetryButtonClick: () -> Unit,
 ) {
@@ -259,7 +286,13 @@ private fun ShoppingListPage(
             contentAlignment = Alignment.Center
         ) {
             when {
-                shoppingPagingItem.itemCount < 1 -> EmptyPage(modifier = Modifier.fillMaxSize())
+                shoppingItems.itemCount < 1 -> {
+                    EmptyPage(
+                        modifier = Modifier.fillMaxSize(),
+                        label = stringResource(id = R.string.empty_query)
+                    )
+                }
+
                 else -> {
                     LazyColumn(
                         modifier = Modifier
@@ -269,25 +302,26 @@ private fun ShoppingListPage(
                         verticalArrangement = Arrangement.spacedBy(5.dp)
                     ) {
                         items(
-                            count = shoppingPagingItem.itemCount,
-                            key = shoppingPagingItem.itemKey { it.productId },
+                            count = shoppingItems.itemCount,
+                            key = shoppingItems.itemKey { it.productId },
                         ) { index ->
-                            val item = shoppingPagingItem[index] ?: return@items
-                            NewsRow(
+                            val item = shoppingItems[index] ?: return@items
+                            ShoppingItem(
                                 item = item,
-                                onFavoriteClick = onFavoriteClick,
+                                onAddFavoriteClick = onAddFavoriteClick,
+                                onDeleteFavoriteClick = onDeleteFavoriteClick,
                                 onItemClick = onItemClick,
                             )
                         }
 
-                        shoppingPagingItem.apply {
+                        shoppingItems.apply {
                             when {
                                 loadState.refresh is LoadState.Loading -> {
                                     item { PageLoader(modifier = Modifier.fillParentMaxSize()) }
                                 }
 
                                 loadState.refresh is LoadState.Error -> {
-                                    val error = shoppingPagingItem.loadState.refresh as LoadState.Error
+                                    val error = shoppingItems.loadState.refresh as LoadState.Error
                                     item {
                                         ErrorMessage(
                                             modifier = Modifier.fillParentMaxSize(),
@@ -309,10 +343,71 @@ private fun ShoppingListPage(
 }
 
 @Composable
-private fun NewsRow(
-    item: ShoppingItem,
-    onFavoriteClick: (ShoppingItem) -> Unit,
+private fun FavoriteListPage(
+    priceAlarmActivated: Boolean,
+    favoriteItem: ImmutableList<ShoppingItem>,
+    onPriceAlarmActive: (Boolean) -> Unit,
+    onDeleteFavoriteClick: (String) -> Unit,
     onItemClick: (ShoppingItem) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+
+        if (favoriteItem.isNotEmpty()) {
+            PriceAlarmSwitch(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp),
+                isChecked = priceAlarmActivated,
+                onPriceAlarmActive = onPriceAlarmActive,
+            )
+        }
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                favoriteItem.isEmpty() -> {
+                    EmptyPage(
+                        modifier = Modifier.fillMaxSize(),
+                        label = stringResource(id = R.string.empty_favorite),
+                    )
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 5.dp),
+                        contentPadding = PaddingValues(all = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        items(
+                            count = favoriteItem.size,
+                            key = { index -> favoriteItem[index].productId }
+                        ) { index ->
+                            val item = favoriteItem[index]
+                            ShoppingItem(
+                                item = item,
+                                onDeleteFavoriteClick = onDeleteFavoriteClick,
+                                onItemClick = onItemClick,
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShoppingItem(
+    item: ShoppingItem,
+    onAddFavoriteClick: (ShoppingItem) -> Unit = {},
+    onDeleteFavoriteClick: (String) -> Unit = {},
+    onItemClick: (ShoppingItem) -> Unit = {},
 ) {
     Row(
         modifier = Modifier
@@ -322,9 +417,10 @@ private fun NewsRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
-        Box(modifier = Modifier
-            .size(120.dp)
-            .padding(all = 5.dp)
+        Box(
+            modifier = Modifier
+                .size(120.dp)
+                .padding(all = 5.dp)
         ) {
             ImmutableGlideImage(
                 modifier = Modifier.fillMaxSize(),
@@ -334,7 +430,12 @@ private fun NewsRow(
             Image(
                 modifier = Modifier
                     .clip(CircleShape)
-                    .clickable { onFavoriteClick(item) },
+                    .clickable {
+                        when (item.isFavorite) {
+                            true -> onDeleteFavoriteClick(item.productId)
+                            else -> onAddFavoriteClick(item)
+                        }
+                    },
                 painter = when (item.isFavorite) {
                     true -> painterResource(id = R.drawable.baseline_star_24)
                     else -> painterResource(id = R.drawable.baseline_star_border_24)
@@ -359,13 +460,22 @@ private fun NewsRow(
             //최고가
             PriceLabel(
                 isHighest = true,
+                label = stringResource(id = R.string.highest_price),
                 price = item.highestPrice,
             )
 
             //최저가
             PriceLabel(
                 isHighest = false,
+                label = stringResource(id = R.string.lowest_price),
                 price = item.lowestPrice,
+            )
+
+            //어제의 최고가 혹은 최저가
+            PrevShoppingItem(
+                prevLowestPrice = item.prevLowestPrice,
+                prevHighestPrice = item.prevHighestPrice,
+                isRefreshFail = item.isRefreshFail,
             )
 
             //판매처
@@ -400,15 +510,73 @@ private fun NewsRow(
 }
 
 @Composable
-fun PriceLabel(
+private fun PrevShoppingItem(
+    prevLowestPrice: String,
+    prevHighestPrice: String,
+    isRefreshFail: Boolean,
+) {
+    if (prevHighestPrice.isNotBlank() || prevLowestPrice.isNotBlank()) {
+        PrevShoppingPrice(
+            price = prevHighestPrice,
+            label = stringResource(id = R.string.prev_highest_price),
+        )
+
+        PrevShoppingPrice(
+            price = prevLowestPrice,
+            label = stringResource(id = R.string.prev_lowest_price),
+        )
+    } else {
+        if (isRefreshFail) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Red),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = stringResource(id = R.string.refresh_fail),
+                    color = white,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PrevShoppingPrice(
+    price: String,
+    label: String,
+) {
+    if (price.isNotBlank()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+            Text(
+                text = label,
+                style = Typography.bodyMedium,
+            )
+            Text(
+                text = price.toPriceFormat()?.let { it + stringResource(id = R.string.price_won) } ?: stringResource(id = R.string.unknown_price),
+                style = Typography.bodyMedium,
+                fontWeight = FontWeight.Bold,
+                color = green_700
+            )
+        }
+    }
+}
+
+@Composable
+private fun PriceLabel(
     isHighest: Boolean,
+    label: String,
     price: String,
 ) {
     if (price.isNotBlank()) {
         Row {
             if (!isHighest) {
                 Text(
-                    text = stringResource(id = R.string.lowest_price),
+                    text = label,
                     style = Typography.bodyMedium,
                 )
             }
@@ -429,14 +597,50 @@ fun PriceLabel(
 }
 
 @Composable
-fun EmptyPage(modifier: Modifier = Modifier) {
+private fun PriceAlarmSwitch(
+    modifier: Modifier = Modifier,
+    isChecked: Boolean,
+    onPriceAlarmActive: (Boolean) -> Unit,
+) {
+    var checked by remember { mutableStateOf(isChecked) }
+
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(text = "매일 가격 갱신 알람 받기(자정)")
+
+        Switch(
+            checked = checked,
+            onCheckedChange = {
+                checked = it
+                onPriceAlarmActive(it)
+            },
+            colors = SwitchDefaults.colors(
+                uncheckedThumbColor = green_300,
+                uncheckedTrackColor = white,
+                uncheckedBorderColor = green_100,
+                checkedThumbColor = white,
+                checkedTrackColor = green_500,
+                checkedBorderColor = green_100,
+            ),
+        )
+    }
+}
+
+@Composable
+private fun EmptyPage(
+    modifier: Modifier = Modifier,
+    label: String,
+) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = stringResource(id = R.string.empty_query),
+            text = label,
             color = MaterialTheme.colorScheme.primary,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
@@ -445,7 +649,7 @@ fun EmptyPage(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun PageLoader(modifier: Modifier = Modifier) {
+private fun PageLoader(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
@@ -464,7 +668,7 @@ fun PageLoader(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun LoadingPageItem(modifier: Modifier) {
+private fun LoadingPageItem(modifier: Modifier) {
     CircularProgressIndicator(
         modifier = modifier
             .fillMaxWidth()
@@ -474,7 +678,7 @@ fun LoadingPageItem(modifier: Modifier) {
 }
 
 @Composable
-fun ErrorMessage(
+private fun ErrorMessage(
     message: String,
     modifier: Modifier = Modifier,
     onClickRetry: () -> Unit
@@ -497,35 +701,6 @@ fun ErrorMessage(
 }
 
 @Composable
-fun NetworkError(
-    modifier: Modifier = Modifier,
-    onRetryButtonClick: () -> Unit,
-) {
-    Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = stringResource(R.string.network_error_title),
-            style = Typography.bodyMedium,
-            textAlign = TextAlign.Center,
-        )
-
-        Text(
-            text = stringResource(R.string.network_error_description),
-            style = Typography.bodySmall,
-            modifier = Modifier.padding(16.dp),
-            textAlign = TextAlign.Center,
-        )
-
-        Button(onClick = { onRetryButtonClick() }) {
-            Text(text = stringResource(R.string.network_error_retry_button_text).uppercase())
-        }
-    }
-}
-
-@Composable
 @Preview
 private fun HomeScreenPreview() {
     BargainPriceTheme {
@@ -534,12 +709,27 @@ private fun HomeScreenPreview() {
                 .fillMaxSize()
                 .background(white),
             state = HomeContract.State(
-                query = MutableStateFlow(""),
-                shoppingInfo = MutableStateFlow(PagingData.empty()),
+                priceAlarmActivated = MutableStateFlow(true),
+                shoppingItems = MutableStateFlow(PagingData.empty()),
+                favoriteShoppingItems = MutableStateFlow(emptyList()),
             ),
             effectFlow = null,
             onEventSent = {},
             onNavigationRequested = {},
+        )
+    }
+}
+
+@Composable
+@Preview
+private fun PriceAlarmSwitchPreview() {
+    BargainPriceTheme {
+        PriceAlarmSwitch(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(white),
+            isChecked = false,
+            onPriceAlarmActive = {}
         )
     }
 }

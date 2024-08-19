@@ -11,6 +11,6 @@ class InsertFavoriteShoppingUseCase(
 
     override suspend fun execute(param: ShoppingData) {
         Timber.d("execute($param)")
-        repository.insertShopping(param)
+        repository.insertShoppingItem(param)
     }
 }

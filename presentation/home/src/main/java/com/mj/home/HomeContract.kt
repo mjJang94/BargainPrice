@@ -13,13 +13,16 @@ class HomeContract {
         data class QueryChange(val query: String) : Event()
         data object Retry : Event()
         data object SearchClick : Event()
+        data class AlarmActive(val active: Boolean): Event()
         data class AddFavorite(val item: ShoppingItem): Event()
+        data class DeleteFavorite(val id: String): Event()
         data class ItemClick(val item: ShoppingItem) : Event()
     }
 
     data class State(
-        val query: StateFlow<String>,
-        val shoppingInfo: StateFlow<PagingData<ShoppingItem>>,
+        val priceAlarmActivated: StateFlow<Boolean>,
+        val shoppingItems: StateFlow<PagingData<ShoppingItem>>,
+        val favoriteShoppingItems: StateFlow<List<ShoppingItem>>,
     ) : ViewState
 
     sealed class Effect : ViewSideEffect {

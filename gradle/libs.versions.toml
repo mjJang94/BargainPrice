@@ -15,7 +15,8 @@ androidx-compose-material3 = "1.2.1"
 androidx-compose-navigation = "2.7.7"
 androidx-compose-lifecycle-viewmodel = "2.8.4"
 androidx-paging = "3.3.2"
-androidx-lifecycle-runtime = "2.8.4"
+androidx-lifecycle = "2.8.4"
+androidx-datastore = "1.1.1"
 
 
 kotlinx-collections = "0.3.5"
@@ -33,7 +34,8 @@ timber = "5.0.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx-lifecycle-runtime" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
+androidx-lifecycle-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "androidx-compose-runtime" }
 androidx-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "androidx-compose-animation" }
@@ -52,6 +54,7 @@ androidx-compose_paging = { group = "androidx.paging", name = "paging-compose", 
 androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", version.ref = "androidx-paging" }
 androidx-paging-common_without_android_dependencies = { group = "androidx.paging", name = "paging-common", version.ref = "androidx-paging" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
+androidx-datastore = { group = "androidx.datastore", name  = "datastore-preferences", version.ref = "androidx-datastore"}
 
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }

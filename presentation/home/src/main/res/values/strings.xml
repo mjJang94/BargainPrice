@@ -4,6 +4,7 @@
     <string name="delete">삭제</string>
     <string name="query_label">검색어</string>
     <string name="empty_query">검색어를 입력해주세요.</string>
+    <string name="empty_favorite">즐겨찾기 상품이 없습니다.</string>
     <string name="home_screen_already_scrap">이미 스크랩 되어 있습니다.</string>
     <string name="home_screen_loaded_result_empty">검색 결과가 없습니다</string>
     <string name="home_screen_scrap_result_empty">스크랩한 뉴스가 없습니다</string>
@@ -15,6 +16,10 @@
     <string name="fetch_data_from_server">데이터 로드 중</string>
 
     <string name="lowest_price">최저가</string>
+    <string name="prev_lowest_price">어제 최저가</string>
+    <string name="highest_price">최고가</string>
+    <string name="prev_highest_price">어제 최고가</string>
+    <string name="refresh_fail">갱신 실패</string>
     <string name="price_won">원</string>
     <string name="mall_name">쇼핑몰 :</string>
     <string name="maker">제조사 :</string>

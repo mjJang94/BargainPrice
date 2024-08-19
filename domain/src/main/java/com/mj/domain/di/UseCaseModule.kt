@@ -4,8 +4,10 @@ import com.mj.domain.bridge.DataRepository
 import com.mj.domain.usecase.shopping.GetShoppingDataUseCase
 import com.mj.domain.usecase.shopping.CombinedShoppingUseCases
 import com.mj.domain.usecase.shopping.DeleteFavoriteShoppingUseCase
+import com.mj.domain.usecase.shopping.GetAlarmActiveUseCase
 import com.mj.domain.usecase.shopping.GetFavoriteShoppingUseCase
 import com.mj.domain.usecase.shopping.InsertFavoriteShoppingUseCase
+import com.mj.domain.usecase.shopping.SetAlarmActiveUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,5 +27,7 @@ object UseCaseModule {
         getFavoriteShoppingData = GetFavoriteShoppingUseCase(repository),
         insertFavoriteShoppingData = InsertFavoriteShoppingUseCase(repository),
         deleteFavoriteShoppingData = DeleteFavoriteShoppingUseCase(repository),
+        getAlarmActiveUseCase = GetAlarmActiveUseCase(repository),
+        setAlarmActiveUseCase = SetAlarmActiveUseCase(repository),
     )
 }

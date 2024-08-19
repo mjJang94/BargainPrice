@@ -28,9 +28,18 @@ class DataRepositoryImpl(
     override fun shoppingFlow(): Flow<List<ShoppingData>> =
         dataSource.shoppingFlow().map { it.translate() }
 
-    override suspend fun insertShopping(data: ShoppingData) =
-        dataSource.insertShopping(data.translate())
+    override suspend fun getAllShoppingItems(): List<ShoppingData> =
+        dataSource.getAllShoppingItems().translate()
 
-    override suspend fun deleteShopping(productId: String): Int =
-        dataSource.deleteShopping(productId)
+    override suspend fun insertShoppingItem(data: ShoppingData) =
+        dataSource.insertShoppingItem(data.translate())
+
+    override suspend fun deleteShoppingItem(productId: String): Int =
+        dataSource.deleteShoppingItem(productId)
+
+    override fun getAlarmActive(): Flow<Boolean?> =
+        dataSource.getAlarmActive()
+
+    override suspend fun setAlarmActive(active: Boolean) =
+        dataSource.setAlarmActive(active)
 }

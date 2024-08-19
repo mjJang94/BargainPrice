@@ -7,6 +7,8 @@ data class ShoppingData(
     val image: String,
     val lowestPrice: String,
     val highestPrice: String,
+    val prevLowestPrice: String,
+    val prevHighestPrice: String,
     val mallName: String,
     val productId: String,
     val productType: String,
@@ -16,4 +18,5 @@ data class ShoppingData(
     val category2: String,
     val category3: String,
     val category4: String,
+    val isRefreshFail: Boolean,
 )

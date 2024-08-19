@@ -11,6 +11,8 @@ data class ShoppingEntity(
     val image: String,
     val lowestPrice: String,
     val highestPrice: String,
+    val prevHighestPrice: String,
+    val prevLowestPrice: String,
     val mallName: String,
     val productType: String,
     val maker: String,
@@ -19,4 +21,5 @@ data class ShoppingEntity(
     val category2: String,
     val category3: String,
     val category4: String,
+    val isRefreshFail: Boolean,
 )

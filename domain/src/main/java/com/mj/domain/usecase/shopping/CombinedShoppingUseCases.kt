@@ -5,4 +5,6 @@ data class CombinedShoppingUseCases(
     val getFavoriteShoppingData: GetFavoriteShoppingUseCase,
     val insertFavoriteShoppingData: InsertFavoriteShoppingUseCase,
     val deleteFavoriteShoppingData: DeleteFavoriteShoppingUseCase,
+    val getAlarmActiveUseCase: GetAlarmActiveUseCase,
+    val setAlarmActiveUseCase: SetAlarmActiveUseCase,
 )

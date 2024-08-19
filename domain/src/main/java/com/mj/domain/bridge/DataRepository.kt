@@ -6,7 +6,12 @@ import kotlinx.coroutines.flow.Flow
 
 interface DataRepository {
     suspend fun getShoppingList(query: String): Flow<PagingData<ShoppingData>>
+
     fun shoppingFlow(): Flow<List<ShoppingData>>
-    suspend fun insertShopping(data: ShoppingData)
-    suspend fun deleteShopping(productId: String): Int
+    suspend fun getAllShoppingItems(): List<ShoppingData>
+    suspend fun insertShoppingItem(data: ShoppingData)
+    suspend fun deleteShoppingItem(productId: String): Int
+
+    fun getAlarmActive(): Flow<Boolean?>
+    suspend fun setAlarmActive(active: Boolean)
 }

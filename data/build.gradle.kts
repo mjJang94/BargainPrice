@@ -46,6 +46,7 @@ dependencies {
     ksp(libs.room.compiler)
 
     implementation(libs.androidx.paging.common.without.android.dependencies)
+    implementation(libs.androidx.datastore)
 
     implementation(libs.timber)
 }

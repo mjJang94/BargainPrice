@@ -64,6 +64,7 @@ android {
 
 dependencies {
 
+    implementation(project(":data"))
     implementation(project(":core"))
     implementation(project(":presentation:home"))
 
