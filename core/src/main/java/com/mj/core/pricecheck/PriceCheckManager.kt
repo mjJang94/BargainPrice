@@ -28,33 +28,31 @@ class PriceCheckManager @Inject constructor(
         result: () -> Unit,
     ) {
         runCatching {
-            runCatching {
-                val cachedFavorite = dataSource.getAllShoppingItems()
-                cachedFavorite.forEach { cache ->
-                    val refreshItem = dataSource.refreshFavoriteList(
-                        query = cache.title,
-                        page = 1,
-                        pageSize = 10,
-                    ).items.firstOrNull {
-                        it.productId == cache.productId
-                    }
-
-                    val entity = when (refreshItem) {
-                        null -> cache.copy(isRefreshFail = true)
-                        else -> refreshItem.formalize(cache)
-                    }
-                    Timber.d("new entity = $entity")
-                    dataSource.insertShoppingItem(entity)
+            val cachedFavorite = dataSource.getAllShoppingItems()
+            cachedFavorite.forEach { cache ->
+                val refreshItem = dataSource.refreshFavoriteList(
+                    query = cache.title,
+                    page = 1,
+                    pageSize = 10,
+                ).items.firstOrNull {
+                    it.productId == cache.productId
                 }
-                setAlarmSchedule(interactIntent)
-            }.onSuccess {
-                fireSuccessNotification(context, actionIntent)
-                result()
-            }.onFailure { tr ->
-                Timber.e(tr)
-                fireFailureNotification(context, tr)
-                result()
+
+                val entity = when (refreshItem) {
+                    null -> cache.copy(isRefreshFail = true)
+                    else -> refreshItem.formalize(cache)
+                }
+                Timber.d("new entity = $entity")
+                dataSource.insertShoppingItem(entity)
             }
+            setAlarmSchedule(interactIntent)
+        }.onSuccess {
+            fireSuccessNotification(context, actionIntent)
+            result()
+        }.onFailure { tr ->
+            Timber.e(tr)
+            fireFailureNotification(context, tr)
+            result()
         }
     }
 
