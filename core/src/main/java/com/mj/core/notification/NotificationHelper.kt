@@ -31,18 +31,17 @@ class NotificationHelper @Inject constructor(
         notificationManager.createNotificationChannel(channel)
     }
 
-    fun showNotification(notificationType: NotificationType) {
-        val notificationBuilder = when (notificationType) {
-            is NotificationType.Simple -> buildSimpleNotification(notificationType)
-            is NotificationType.Action -> buildActionNotification(notificationType)
-            is NotificationType.Progress -> buildProgressNotification(notificationType)
+    fun fire(type: NotificationType) {
+        val notificationBuilder = when (type) {
+            is NotificationType.RefreshSuccess -> buildActionNotification(type)
+            is NotificationType.RefreshFailure -> buildSimpleNotification(type)
         }
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(notificationType.hashCode(), notificationBuilder.build())
+        notificationManager.notify(type.hashCode(), notificationBuilder.build())
     }
 
-    private fun buildSimpleNotification(type: NotificationType.Simple): NotificationCompat.Builder {
+    private fun buildSimpleNotification(type: NotificationType): NotificationCompat.Builder {
         return NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(type.title)
@@ -51,22 +50,13 @@ class NotificationHelper @Inject constructor(
             .setAutoCancel(true)
     }
 
-    private fun buildActionNotification(type: NotificationType.Action): NotificationCompat.Builder {
+    private fun buildActionNotification(type: NotificationType): NotificationCompat.Builder {
         return NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(type.title)
             .setContentText(type.message)
-            .addAction(android.R.drawable.ic_menu_view, type.actionText, type.actionIntent)
+            .addAction(android.R.drawable.ic_menu_view, type.actionText, type.pendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
-    }
-
-    private fun buildProgressNotification(type: NotificationType.Progress): NotificationCompat.Builder {
-        return NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle(type.title)
-            .setContentText(type.message)
-            .setProgress(100, type.progress, false)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
     }
 }

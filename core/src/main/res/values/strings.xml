@@ -1,0 +1,7 @@
+<resources>
+    <string name="noti_refresh_success_title">즐겨찾기 상품 갱신 성공</string>
+    <string name="noti_refresh_success_label">즐겨찾기한 상품의 정보가 갱신 되었어요.</string>
+    <string name="noti_refresh_success_confirm">확인하기</string>
+
+    <string name="noti_refresh_fail_title">즐겨찾기 상품 갱신 실패</string>
+</resources>

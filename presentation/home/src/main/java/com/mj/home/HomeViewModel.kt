@@ -5,6 +5,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.mj.core.base.BaseViewModel
+import com.mj.core.common.removeHtmlTag
 import com.mj.domain.model.ShoppingData
 import com.mj.domain.usecase.shopping.CombinedShoppingUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -142,32 +143,9 @@ class HomeViewModel @Inject constructor(
         val isRefreshFail: Boolean,
     )
 
-    private fun List<ShoppingData>.formalize(): List<ShoppingItem> = this.map {
-        ShoppingItem(
-            title = it.title,
-            link = it.link,
-            image = it.image,
-            lowestPrice = it.lowestPrice,
-            highestPrice = it.highestPrice,
-            prevLowestPrice = it.prevLowestPrice,
-            prevHighestPrice = it.prevHighestPrice,
-            mallName = it.mallName,
-            productId = it.productId,
-            productType = it.productType,
-            maker = it.maker,
-            brand = it.brand,
-            category1 = it.category1,
-            category2 = it.category2,
-            category3 = it.category3,
-            category4 = it.category4,
-            isFavorite = true,
-            isRefreshFail = it.isRefreshFail,
-        )
-    }
-
     private fun PagingData<ShoppingData>.formalize(favorite: List<ShoppingItem>): PagingData<ShoppingItem> = this.map {
         ShoppingItem(
-            title = it.title,
+            title = it.title.removeHtmlTag(),
             link = it.link,
             image = it.image,
             lowestPrice = it.lowestPrice,
@@ -188,8 +166,31 @@ class HomeViewModel @Inject constructor(
         )
     }
 
+    private fun List<ShoppingData>.formalize(): List<ShoppingItem> = this.map {
+        ShoppingItem(
+            title = it.title.removeHtmlTag(),
+            link = it.link,
+            image = it.image,
+            lowestPrice = it.lowestPrice,
+            highestPrice = it.highestPrice,
+            prevLowestPrice = it.prevLowestPrice,
+            prevHighestPrice = it.prevHighestPrice,
+            mallName = it.mallName,
+            productId = it.productId,
+            productType = it.productType,
+            maker = it.maker,
+            brand = it.brand,
+            category1 = it.category1,
+            category2 = it.category2,
+            category3 = it.category3,
+            category4 = it.category4,
+            isFavorite = true,
+            isRefreshFail = it.isRefreshFail,
+        )
+    }
+
     private fun ShoppingItem.translate(): ShoppingData = ShoppingData(
-        title = title,
+        title = title.removeHtmlTag(),
         link = link,
         image = image,
         lowestPrice = lowestPrice,

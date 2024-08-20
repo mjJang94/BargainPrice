@@ -38,3 +38,7 @@ fun HtmlText(
         }
     )
 }
+
+fun String.removeHtmlTag(): String = this.replace(
+    Regex("<.*?>"), ""
+)

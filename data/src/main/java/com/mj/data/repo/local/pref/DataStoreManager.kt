@@ -25,7 +25,7 @@ class DataStoreManager @Inject constructor(
         }
     }
 
-    val priceCheckAlarmActiveFlow: Flow<Boolean?> = context.dataStore.data.map {
-        it[PRICE_CHECK_ALARM_ACTIVATION_KEY]
+    val priceCheckAlarmActiveFlow: Flow<Boolean> = context.dataStore.data.map {
+        it[PRICE_CHECK_ALARM_ACTIVATION_KEY] ?: false
     }
 }

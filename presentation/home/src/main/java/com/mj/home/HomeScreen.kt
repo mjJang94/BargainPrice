@@ -451,10 +451,10 @@ private fun ShoppingItem(
             horizontalAlignment = Alignment.Start,
             verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
-            HtmlText(
-                htmlText = item.title,
-                textStyle = Typography.titleMedium,
-                maxLine = 2,
+            Text(
+                text = item.title,
+                style = Typography.titleMedium,
+                maxLines = 2,
             )
 
             //최고가
