@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -58,6 +57,7 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -79,6 +79,7 @@ import com.mj.core.common.ImmutableGlideImage
 import com.mj.core.common.appendCategoryData
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
+import com.mj.core.theme.gray
 import com.mj.core.theme.green_100
 import com.mj.core.theme.green_200
 import com.mj.core.theme.green_300
@@ -140,7 +141,7 @@ fun HomeScreen(
             shoppingItems = shoppingItems,
             recentQueriesItems = remember(recentQueriesItems) { recentQueriesItems.toImmutableList() },
             favoriteItems = remember(favoriteItems) { favoriteItems.toImmutableList() },
-            onRecentQueryClick = { onEventSent(HomeContract.Event.RecentQueryClick(it))},
+            onRecentQueryClick = { onEventSent(HomeContract.Event.RecentQueryClick(it)) },
             onPriceAlarmActive = { onEventSent(HomeContract.Event.AlarmActive(it)) },
             onQueryChanged = { onEventSent(HomeContract.Event.QueryChange(it)) },
             onSearchClick = { onEventSent(HomeContract.Event.SearchClick) },
@@ -177,45 +178,66 @@ private fun HomeContent(
     onRetryButtonClick: () -> Unit,
 ) {
 
-    TabRow(selectedTabIndex = pagerState.currentPage) {
-        Pages.entries.forEachIndexed { index, title ->
-            Tab(
-                modifier = Modifier.background(white),
-                text = { Text(text = stringResource(id = title.resId)) },
-                selected = pagerState.currentPage == index,
-                onClick = { onPageChanged(index) },
-            )
-        }
-    }
+    Column {
+        HorizontalPager(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f),
+            state = pagerState,
+            beyondBoundsPageCount = pagerState.pageCount,
+            userScrollEnabled = false,
+        ) { index ->
+            when (Pages.entries[index]) {
+                Pages.SEARCH -> {
+                    ShoppingListPage(
+                        focusManager = focusManager,
+                        changedQuery = changedQuery,
+                        shoppingItems = shoppingItems,
+                        recentQueriesItems = recentQueriesItems,
+                        onRecentQueryClick = onRecentQueryClick,
+                        onQueryChanged = onQueryChanged,
+                        onSearchClick = onSearchClick,
+                        onItemClick = onItemClick,
+                        onAddFavoriteClick = onAddFavoriteClick,
+                        onDeleteFavoriteClick = onDeleteFavoriteClick,
+                        onRetryButtonClick = onRetryButtonClick,
+                    )
+                }
 
-    HorizontalPager(
-        state = pagerState,
-        beyondBoundsPageCount = pagerState.pageCount,
-    ) { index ->
-        when (Pages.entries[index]) {
-            Pages.SEARCH -> {
-                ShoppingListPage(
-                    focusManager = focusManager,
-                    changedQuery = changedQuery,
-                    shoppingItems = shoppingItems,
-                    recentQueriesItems = recentQueriesItems,
-                    onRecentQueryClick = onRecentQueryClick,
-                    onQueryChanged = onQueryChanged,
-                    onSearchClick = onSearchClick,
-                    onItemClick = onItemClick,
-                    onAddFavoriteClick = onAddFavoriteClick,
-                    onDeleteFavoriteClick = onDeleteFavoriteClick,
-                    onRetryButtonClick = onRetryButtonClick,
-                )
+                Pages.FAVORITE -> {
+                    FavoriteListPage(
+                        priceAlarmActivated = priceAlarmActivated,
+                        favoriteItem = favoriteItems,
+                        onPriceAlarmActive = onPriceAlarmActive,
+                        onDeleteFavoriteClick = onDeleteFavoriteClick,
+                        onItemClick = onItemClick,
+                    )
+                }
             }
+        }
 
-            Pages.FAVORITE -> {
-                FavoriteListPage(
-                    priceAlarmActivated = priceAlarmActivated,
-                    favoriteItem = favoriteItems,
-                    onPriceAlarmActive = onPriceAlarmActive,
-                    onDeleteFavoriteClick = onDeleteFavoriteClick,
-                    onItemClick = onItemClick,
+        TabRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)),
+            selectedTabIndex = pagerState.currentPage,
+            indicator = {},
+            divider = {},
+        ) {
+            Pages.entries.forEachIndexed { index, title ->
+                Tab(
+                    modifier = Modifier.background(green_500),
+                    text = {
+                        Text(
+                            text = stringResource(id = title.resId),
+                            color = when (pagerState.currentPage == index) {
+                                true -> white
+                                else -> gray
+                            }
+                        )
+                    },
+                    selected = pagerState.currentPage == index,
+                    onClick = { onPageChanged(index) },
                 )
             }
         }
@@ -436,7 +458,7 @@ private fun FavoriteListPage(
             PriceAlarmSwitch(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 10.dp),
+                    .padding(all = 10.dp),
                 isChecked = priceAlarmActivated,
                 onPriceAlarmActive = onPriceAlarmActive,
             )
@@ -689,7 +711,10 @@ private fun PriceAlarmSwitch(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(text = "매일 가격 갱신 알람 받기(자정)")
+        Text(
+            text = stringResource(id = R.string.refresh_price_label),
+            style = Typography.bodyMedium,
+        )
 
         Switch(
             checked = checked,
@@ -789,7 +814,7 @@ private fun HomeScreenPreview() {
                 .fillMaxSize()
                 .background(white),
             state = HomeContract.State(
-                changedQuery =  MutableStateFlow(""),
+                changedQuery = MutableStateFlow(""),
                 priceAlarmActivated = MutableStateFlow(true),
                 shoppingItems = MutableStateFlow(PagingData.empty()),
                 recentQueries = MutableStateFlow(emptyList()),

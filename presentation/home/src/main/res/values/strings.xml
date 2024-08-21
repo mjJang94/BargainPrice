@@ -15,6 +15,7 @@
     <string name="scrap_failure">스크랩 실패</string>
     <string name="fetch_data_from_server">데이터 로드 중</string>
 
+    <string name="refresh_price_label">매일 가격 갱신 알림(자정)</string>
     <string name="lowest_price">최저가</string>
     <string name="prev_lowest_price">어제 최저가</string>
     <string name="highest_price">최고가</string>

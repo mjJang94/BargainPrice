@@ -1,6 +1,5 @@
 package com.mj.home
 
-import androidx.compose.runtime.MutableState
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -24,6 +23,10 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val combinedShoppingUseCases: CombinedShoppingUseCases
 ) : BaseViewModel<HomeContract.Event, HomeContract.State, HomeContract.Effect>() {
+
+    companion object{
+        private const val MAX_RECENT_QUERY_COUNT = 10
+    }
 
     init {
         getFavoriteShoppingItems()
@@ -84,14 +87,12 @@ class HomeViewModel @Inject constructor(
     private fun setRecentQueries(query: String) {
         viewModelScope.launch {
             val lastQueries = (combinedShoppingUseCases.getRecentQueriesUseCase().firstOrNull() ?: emptySet())
-            Timber.w("queries = $lastQueries")
             val mutableQueries = lastQueries.toMutableSet().apply {
-                when (size < 10) {
+                when (MAX_RECENT_QUERY_COUNT > size) {
                     true -> add(query)
                     else -> remove(last())
                 }
             }
-            Timber.w("queries = $mutableQueries")
             combinedShoppingUseCases.setRecentQueriesUseCase(
                 dispatcher = Dispatchers.IO,
                 param = mutableQueries
