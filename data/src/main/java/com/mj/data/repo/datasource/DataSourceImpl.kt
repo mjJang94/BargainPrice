@@ -31,9 +31,15 @@ class DataSourceImpl @Inject constructor(
     override suspend fun deleteShoppingItem(productId: String): Int =
         shoppingDao.deleteById(productId)
 
-    override fun getAlarmActive(): Flow<Boolean?> =
+    override fun getAlarmActiveFlow(): Flow<Boolean> =
         store.priceCheckAlarmActiveFlow
 
     override suspend fun setAlarmActive(active: Boolean) =
         store.storePriceCheckAlarmActivation(active)
+
+    override fun getRecentSearchQueriesFlow(): Flow<Set<String>> =
+        store.recentSearchQueries
+
+    override suspend fun setRecentQueries(queries: Set<String>) =
+        store.storeRecentSearchQueries(queries)
 }

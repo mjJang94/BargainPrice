@@ -14,6 +14,9 @@ interface DataSource {
     suspend fun insertShoppingItem(shoppingEntity: ShoppingEntity)
     suspend fun deleteShoppingItem(productId: String): Int
 
-    fun getAlarmActive(): Flow<Boolean?>
+    fun getAlarmActiveFlow(): Flow<Boolean>
     suspend fun setAlarmActive(active: Boolean)
+
+    fun getRecentSearchQueriesFlow(): Flow<Set<String>>
+    suspend fun setRecentQueries(queries: Set<String>)
 }

@@ -1,15 +1,15 @@
-package com.mj.domain.usecase.shopping
+package com.mj.domain.usecase.home
 
 import com.mj.domain.bridge.DataRepository
 import com.mj.domain.usecase.base.ActionUseCase
 import timber.log.Timber
 
-class SetAlarmActiveUseCase(
+class SetRecentQueriesUseCase(
     private val repository: DataRepository
-): ActionUseCase<Boolean>() {
+): ActionUseCase<Set<String>>() {
 
-    override suspend fun execute(param: Boolean) {
+    override suspend fun execute(param: Set<String>) {
         Timber.d("execute($param)")
-        repository.setAlarmActive(param)
+        repository.setRecentQueries(param)
     }
 }

@@ -37,9 +37,16 @@ class DataRepositoryImpl(
     override suspend fun deleteShoppingItem(productId: String): Int =
         dataSource.deleteShoppingItem(productId)
 
-    override fun getAlarmActive(): Flow<Boolean?> =
-        dataSource.getAlarmActive()
+    override fun getAlarmActive(): Flow<Boolean> =
+        dataSource.getAlarmActiveFlow()
 
     override suspend fun setAlarmActive(active: Boolean) =
         dataSource.setAlarmActive(active)
+
+    override fun getRecentSearchQueriesFlow(): Flow<Set<String>> =
+        dataSource.getRecentSearchQueriesFlow()
+
+    override suspend fun setRecentQueries(queries: Set<String>) =
+        dataSource.setRecentQueries(queries)
+
 }

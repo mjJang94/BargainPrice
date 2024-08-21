@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -30,7 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Divider
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -40,6 +41,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -73,7 +75,6 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.core.base.SIDE_EFFECTS_KEY
-import com.mj.core.common.HtmlText
 import com.mj.core.common.ImmutableGlideImage
 import com.mj.core.common.appendCategoryData
 import com.mj.core.theme.BargainPriceTheme
@@ -81,6 +82,7 @@ import com.mj.core.theme.Typography
 import com.mj.core.theme.green_100
 import com.mj.core.theme.green_200
 import com.mj.core.theme.green_300
+import com.mj.core.theme.green_50
 import com.mj.core.theme.green_500
 import com.mj.core.theme.green_700
 import com.mj.core.theme.white
@@ -110,8 +112,12 @@ fun HomeScreen(
     val pagerState = rememberPagerState(
         pageCount = { Pages.entries.size }
     )
+
     val shoppingItems = state.shoppingItems.collectAsLazyPagingItems()
-    val favoriteItem by state.favoriteShoppingItems.collectAsStateWithLifecycle()
+
+    val changedQuery by state.changedQuery.collectAsStateWithLifecycle()
+    val favoriteItems by state.favoriteShoppingItems.collectAsStateWithLifecycle()
+    val recentQueriesItems by state.recentQueries.collectAsStateWithLifecycle()
     val priceAlarmActivated by state.priceAlarmActivated.collectAsState()
 
     val emptyQueryMsg = stringResource(R.string.empty_query)
@@ -128,10 +134,13 @@ fun HomeScreen(
     Column(modifier = modifier) {
         HomeContent(
             focusManager = focusManager,
+            changedQuery = changedQuery,
             pagerState = pagerState,
             priceAlarmActivated = priceAlarmActivated,
             shoppingItems = shoppingItems,
-            favoriteItems = remember(favoriteItem) { favoriteItem.toImmutableList() },
+            recentQueriesItems = remember(recentQueriesItems) { recentQueriesItems.toImmutableList() },
+            favoriteItems = remember(favoriteItems) { favoriteItems.toImmutableList() },
+            onRecentQueryClick = { onEventSent(HomeContract.Event.RecentQueryClick(it))},
             onPriceAlarmActive = { onEventSent(HomeContract.Event.AlarmActive(it)) },
             onQueryChanged = { onEventSent(HomeContract.Event.QueryChange(it)) },
             onSearchClick = { onEventSent(HomeContract.Event.SearchClick) },
@@ -151,10 +160,13 @@ fun HomeScreen(
 @Composable
 private fun HomeContent(
     focusManager: FocusManager,
+    changedQuery: String,
     pagerState: PagerState,
     priceAlarmActivated: Boolean,
     shoppingItems: LazyPagingItems<ShoppingItem>,
+    recentQueriesItems: ImmutableList<String>,
     favoriteItems: ImmutableList<ShoppingItem>,
+    onRecentQueryClick: (String) -> Unit,
     onPriceAlarmActive: (Boolean) -> Unit,
     onQueryChanged: (String) -> Unit,
     onSearchClick: () -> Unit,
@@ -184,7 +196,10 @@ private fun HomeContent(
             Pages.SEARCH -> {
                 ShoppingListPage(
                     focusManager = focusManager,
+                    changedQuery = changedQuery,
                     shoppingItems = shoppingItems,
+                    recentQueriesItems = recentQueriesItems,
+                    onRecentQueryClick = onRecentQueryClick,
                     onQueryChanged = onQueryChanged,
                     onSearchClick = onSearchClick,
                     onItemClick = onItemClick,
@@ -208,13 +223,71 @@ private fun HomeContent(
 }
 
 @Composable
+private fun ShoppingListPage(
+    focusManager: FocusManager,
+    changedQuery: String,
+    shoppingItems: LazyPagingItems<ShoppingItem>,
+    recentQueriesItems: ImmutableList<String>,
+    onRecentQueryClick: (String) -> Unit,
+    onQueryChanged: (String) -> Unit,
+    onSearchClick: () -> Unit,
+    onAddFavoriteClick: (ShoppingItem) -> Unit,
+    onDeleteFavoriteClick: (String) -> Unit,
+    onItemClick: (ShoppingItem) -> Unit,
+    onRetryButtonClick: () -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        SearchBox(
+            fm = focusManager,
+            changedQuery = changedQuery,
+            onQueryChange = onQueryChanged,
+            onSearchClick = onSearchClick,
+        )
+
+        RecentQueriesList(
+            recentQueriesItems = recentQueriesItems,
+            onRecentQueryClick = onRecentQueryClick,
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                shoppingItems.itemCount < 1 -> {
+                    EmptyPage(
+                        modifier = Modifier.fillMaxSize(),
+                        label = stringResource(id = R.string.empty_query)
+                    )
+                }
+
+                else -> ShoppingList(
+                    shoppingItems = shoppingItems,
+                    onAddFavoriteClick = onAddFavoriteClick,
+                    onDeleteFavoriteClick = onDeleteFavoriteClick,
+                    onItemClick = onItemClick,
+                    onRetryButtonClick = onRetryButtonClick,
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun SearchBox(
     fm: FocusManager,
+    changedQuery: String,
     onQueryChange: (String) -> Unit,
     onSearchClick: () -> Unit,
 ) {
 
     var query by remember { mutableStateOf("") }
+
+    LaunchedEffect(changedQuery) {
+        query = changedQuery
+    }
 
     Column(
         modifier = Modifier
@@ -224,7 +297,7 @@ private fun SearchBox(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(10.dp),
+                .padding(top = 10.dp, bottom = 5.dp, start = 10.dp, end = 10.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -262,80 +335,87 @@ private fun SearchBox(
 }
 
 @Composable
-private fun ShoppingListPage(
-    focusManager: FocusManager,
+private fun RecentQueriesList(
+    recentQueriesItems: ImmutableList<String>,
+    onRecentQueryClick: (String) -> Unit,
+) {
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 5.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp),
+    ) {
+        items(
+            count = recentQueriesItems.size,
+            key = { index -> recentQueriesItems[index] }
+        ) { index ->
+            val query = recentQueriesItems[index]
+
+            TextButton(
+                modifier = Modifier.wrapContentSize(),
+                shape = RoundedCornerShape(12.dp),
+                colors = ButtonColors(
+                    contentColor = green_500,
+                    containerColor = green_50,
+                    disabledContentColor = green_500,
+                    disabledContainerColor = green_50,
+                ),
+                onClick = { onRecentQueryClick(query) },
+            ) {
+                Text(
+                    text = query,
+                    style = Typography.bodyMedium,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ShoppingList(
     shoppingItems: LazyPagingItems<ShoppingItem>,
-    onQueryChanged: (String) -> Unit,
-    onSearchClick: () -> Unit,
     onAddFavoriteClick: (ShoppingItem) -> Unit,
     onDeleteFavoriteClick: (String) -> Unit,
     onItemClick: (ShoppingItem) -> Unit,
     onRetryButtonClick: () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        SearchBox(
-            fm = focusManager,
-            onQueryChange = onQueryChanged,
-            onSearchClick = onSearchClick,
-        )
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 5.dp),
+        contentPadding = PaddingValues(all = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        items(
+            count = shoppingItems.itemCount,
+            key = shoppingItems.itemKey { it.productId },
+        ) { index ->
+            val item = shoppingItems[index] ?: return@items
+            ShoppingItem(
+                item = item,
+                onAddFavoriteClick = onAddFavoriteClick,
+                onDeleteFavoriteClick = onDeleteFavoriteClick,
+                onItemClick = onItemClick,
+            )
+        }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(1f),
-            contentAlignment = Alignment.Center
-        ) {
+        shoppingItems.apply {
             when {
-                shoppingItems.itemCount < 1 -> {
-                    EmptyPage(
-                        modifier = Modifier.fillMaxSize(),
-                        label = stringResource(id = R.string.empty_query)
-                    )
+                loadState.refresh is LoadState.Loading -> {
+                    item { PageLoader(modifier = Modifier.fillParentMaxSize()) }
                 }
 
-                else -> {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 5.dp),
-                        contentPadding = PaddingValues(all = 10.dp),
-                        verticalArrangement = Arrangement.spacedBy(5.dp)
-                    ) {
-                        items(
-                            count = shoppingItems.itemCount,
-                            key = shoppingItems.itemKey { it.productId },
-                        ) { index ->
-                            val item = shoppingItems[index] ?: return@items
-                            ShoppingItem(
-                                item = item,
-                                onAddFavoriteClick = onAddFavoriteClick,
-                                onDeleteFavoriteClick = onDeleteFavoriteClick,
-                                onItemClick = onItemClick,
-                            )
-                        }
-
-                        shoppingItems.apply {
-                            when {
-                                loadState.refresh is LoadState.Loading -> {
-                                    item { PageLoader(modifier = Modifier.fillParentMaxSize()) }
-                                }
-
-                                loadState.refresh is LoadState.Error -> {
-                                    val error = shoppingItems.loadState.refresh as LoadState.Error
-                                    item {
-                                        ErrorMessage(
-                                            modifier = Modifier.fillParentMaxSize(),
-                                            message = error.error.localizedMessage!!,
-                                            onClickRetry = { onRetryButtonClick() })
-                                    }
-                                }
-
-                                loadState.append is LoadState.Loading -> {
-                                    item { LoadingPageItem(modifier = Modifier) }
-                                }
-                            }
-                        }
+                loadState.refresh is LoadState.Error -> {
+                    val error = shoppingItems.loadState.refresh as LoadState.Error
+                    item {
+                        ErrorMessage(
+                            modifier = Modifier.fillParentMaxSize(),
+                            message = error.error.localizedMessage!!,
+                            onClickRetry = { onRetryButtonClick() })
                     }
+                }
+
+                loadState.append is LoadState.Loading -> {
+                    item { LoadingPageItem(modifier = Modifier) }
                 }
             }
         }
@@ -551,7 +631,7 @@ private fun PrevShoppingPrice(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(5.dp)
-            ) {
+        ) {
             Text(
                 text = label,
                 style = Typography.bodyMedium,
@@ -709,8 +789,10 @@ private fun HomeScreenPreview() {
                 .fillMaxSize()
                 .background(white),
             state = HomeContract.State(
+                changedQuery =  MutableStateFlow(""),
                 priceAlarmActivated = MutableStateFlow(true),
                 shoppingItems = MutableStateFlow(PagingData.empty()),
+                recentQueries = MutableStateFlow(emptyList()),
                 favoriteShoppingItems = MutableStateFlow(emptyList()),
             ),
             effectFlow = null,

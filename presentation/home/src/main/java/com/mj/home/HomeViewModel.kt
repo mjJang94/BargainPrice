@@ -1,5 +1,6 @@
 package com.mj.home
 
+import androidx.compose.runtime.MutableState
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
@@ -7,12 +8,13 @@ import androidx.paging.map
 import com.mj.core.base.BaseViewModel
 import com.mj.core.common.removeHtmlTag
 import com.mj.domain.model.ShoppingData
-import com.mj.domain.usecase.shopping.CombinedShoppingUseCases
+import com.mj.domain.usecase.home.CombinedShoppingUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -25,19 +27,23 @@ class HomeViewModel @Inject constructor(
 
     init {
         getFavoriteShoppingItems()
+        getRecentQueries()
         getAlarmActivation()
     }
 
     override fun setInitialState() = HomeContract.State(
+        changedQuery = MutableStateFlow(""),
         priceAlarmActivated = MutableStateFlow(false),
         shoppingItems = MutableStateFlow(PagingData.empty()),
-        favoriteShoppingItems = MutableStateFlow(emptyList())
+        recentQueries = MutableStateFlow(emptyList()),
+        favoriteShoppingItems = MutableStateFlow(emptyList()),
     )
 
     override fun handleEvents(event: HomeContract.Event) {
         when (event) {
             is HomeContract.Event.QueryChange -> queryChange(event.query)
             is HomeContract.Event.SearchClick -> getShoppingItems()
+            is HomeContract.Event.RecentQueryClick -> queryChange(event.query)
             is HomeContract.Event.Retry -> getShoppingItems()
             is HomeContract.Event.AlarmActive -> setAlarmActive(event.active)
             is HomeContract.Event.AddFavorite -> addFavoriteItem(event.item)
@@ -49,15 +55,19 @@ class HomeViewModel @Inject constructor(
     private val _query: MutableStateFlow<String> = MutableStateFlow("")
     private fun queryChange(query: String) {
         _query.value = query
+        setState { copy(changedQuery = _query) }
     }
 
     private val _shoppingInfo: MutableStateFlow<PagingData<ShoppingItem>> = MutableStateFlow(PagingData.empty())
     private val _favoriteShoppingInfo: MutableStateFlow<List<ShoppingItem>> = MutableStateFlow(emptyList())
+    private val _recentQueries: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private val _alarmActive: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     private fun getShoppingItems() {
         viewModelScope.launch {
             val query = _query.value
+            setRecentQueries(query)
+
             combinedShoppingUseCases.getShoppingData(dispatcher = Dispatchers.IO, param = query)
                 .distinctUntilChanged()
                 .cachedIn(viewModelScope)
@@ -68,6 +78,24 @@ class HomeViewModel @Inject constructor(
                     _shoppingInfo.emit(it)
                     setState { copy(shoppingItems = _shoppingInfo) }
                 }
+        }
+    }
+
+    private fun setRecentQueries(query: String) {
+        viewModelScope.launch {
+            val lastQueries = (combinedShoppingUseCases.getRecentQueriesUseCase().firstOrNull() ?: emptySet())
+            Timber.w("queries = $lastQueries")
+            val mutableQueries = lastQueries.toMutableSet().apply {
+                when (size < 10) {
+                    true -> add(query)
+                    else -> remove(last())
+                }
+            }
+            Timber.w("queries = $mutableQueries")
+            combinedShoppingUseCases.setRecentQueriesUseCase(
+                dispatcher = Dispatchers.IO,
+                param = mutableQueries
+            )
         }
     }
 
@@ -107,7 +135,7 @@ class HomeViewModel @Inject constructor(
                 .flowOn(Dispatchers.IO)
                 .distinctUntilChanged()
                 .collect {
-                    _alarmActive.emit(it ?: false)
+                    _alarmActive.emit(it)
                     setState { copy(priceAlarmActivated = _alarmActive) }
                 }
         }
@@ -119,6 +147,17 @@ class HomeViewModel @Inject constructor(
                 dispatcher = Dispatchers.IO,
                 param = active
             )
+        }
+    }
+
+    private fun getRecentQueries() {
+        viewModelScope.launch {
+            combinedShoppingUseCases.getRecentQueriesUseCase()
+                .flowOn(Dispatchers.IO)
+                .collect {
+                    _recentQueries.emit(it.toList())
+                    setState { copy(recentQueries = _recentQueries) }
+                }
         }
     }
 

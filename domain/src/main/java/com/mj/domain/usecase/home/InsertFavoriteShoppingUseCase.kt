@@ -1,4 +1,4 @@
-package com.mj.domain.usecase.shopping
+package com.mj.domain.usecase.home
 
 import com.mj.domain.bridge.DataRepository
 import com.mj.domain.model.ShoppingData

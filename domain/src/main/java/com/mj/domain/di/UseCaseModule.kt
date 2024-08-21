@@ -1,13 +1,15 @@
 package com.mj.domain.di
 
 import com.mj.domain.bridge.DataRepository
-import com.mj.domain.usecase.shopping.GetShoppingDataUseCase
-import com.mj.domain.usecase.shopping.CombinedShoppingUseCases
-import com.mj.domain.usecase.shopping.DeleteFavoriteShoppingUseCase
-import com.mj.domain.usecase.shopping.GetAlarmActiveUseCase
-import com.mj.domain.usecase.shopping.GetFavoriteShoppingUseCase
-import com.mj.domain.usecase.shopping.InsertFavoriteShoppingUseCase
-import com.mj.domain.usecase.shopping.SetAlarmActiveUseCase
+import com.mj.domain.usecase.home.GetShoppingDataUseCase
+import com.mj.domain.usecase.home.CombinedShoppingUseCases
+import com.mj.domain.usecase.home.DeleteFavoriteShoppingUseCase
+import com.mj.domain.usecase.home.GetAlarmActiveUseCase
+import com.mj.domain.usecase.home.GetFavoriteShoppingUseCase
+import com.mj.domain.usecase.home.GetRecentQueriesUseCase
+import com.mj.domain.usecase.home.InsertFavoriteShoppingUseCase
+import com.mj.domain.usecase.home.SetAlarmActiveUseCase
+import com.mj.domain.usecase.home.SetRecentQueriesUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,5 +31,7 @@ object UseCaseModule {
         deleteFavoriteShoppingData = DeleteFavoriteShoppingUseCase(repository),
         getAlarmActiveUseCase = GetAlarmActiveUseCase(repository),
         setAlarmActiveUseCase = SetAlarmActiveUseCase(repository),
+        getRecentQueriesUseCase = GetRecentQueriesUseCase(repository),
+        setRecentQueriesUseCase = SetRecentQueriesUseCase(repository),
     )
 }

@@ -12,6 +12,9 @@ interface DataRepository {
     suspend fun insertShoppingItem(data: ShoppingData)
     suspend fun deleteShoppingItem(productId: String): Int
 
-    fun getAlarmActive(): Flow<Boolean?>
+    fun getAlarmActive(): Flow<Boolean>
     suspend fun setAlarmActive(active: Boolean)
+
+    fun getRecentSearchQueriesFlow(): Flow<Set<String>>
+    suspend fun setRecentQueries(queries: Set<String>)
 }
