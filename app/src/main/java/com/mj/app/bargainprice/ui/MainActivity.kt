@@ -17,8 +17,11 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
-import com.mj.app.bargainprice.service.PriceCheckService
+import com.mj.app.bargainprice.core.PriceCheckReceiver
+import com.mj.app.bargainprice.core.PriceCheckService
 import com.mj.core.alarm.AlarmHelper
+import com.mj.core.alarm.AlarmHelper.ComponentType
+import com.mj.core.alarm.AlarmHelper.ComponentType.Receiver
 import com.mj.core.ktx.Calendar
 import com.mj.core.ktx.startOfNextDay
 import com.mj.core.perm.PermissionHelper
@@ -27,6 +30,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.minutes
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -93,14 +97,14 @@ class MainActivity : ComponentActivity() {
         val time = Calendar(System.currentTimeMillis()).startOfNextDay()
         alarm.set(
             triggerTime = time.timeInMillis,
-            type = AlarmHelper.ComponentType.Service,
-            intent = PriceCheckService.intent(this@MainActivity)
+            type = Receiver,
+            intent = PriceCheckReceiver.intent(this@MainActivity)
         )
     }
 
     private fun cancelAlarm() {
         alarm.cancel(
-            type = AlarmHelper.ComponentType.Service,
+            type = ComponentType.Service,
             intent = PriceCheckService.intent(this@MainActivity)
         )
     }

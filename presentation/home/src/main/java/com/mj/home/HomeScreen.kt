@@ -57,7 +57,6 @@ import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -75,8 +74,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.core.base.SIDE_EFFECTS_KEY
-import com.mj.core.common.ImmutableGlideImage
-import com.mj.core.common.appendCategoryData
+import com.mj.core.common.compose.ImmutableGlideImage
+import com.mj.core.common.compose.appendCategoryData
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
 import com.mj.core.theme.gray
@@ -230,6 +229,7 @@ private fun HomeContent(
                     text = {
                         Text(
                             text = stringResource(id = title.resId),
+                            style = Typography.titleLarge,
                             color = when (pagerState.currentPage == index) {
                                 true -> white
                                 else -> gray

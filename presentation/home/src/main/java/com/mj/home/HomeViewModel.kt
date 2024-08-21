@@ -5,7 +5,7 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.mj.core.base.BaseViewModel
-import com.mj.core.common.removeHtmlTag
+import com.mj.core.common.compose.removeHtmlTag
 import com.mj.domain.model.ShoppingData
 import com.mj.domain.usecase.home.CombinedShoppingUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
