@@ -4,7 +4,6 @@ import com.mj.data.repo.local.dao.ShoppingDao
 import com.mj.data.repo.local.entity.ShoppingEntity
 import com.mj.data.repo.local.pref.DataStoreManager
 import com.mj.data.repo.remote.api.NaverApi
-import com.mj.data.repo.remote.data.ShoppingVo
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 

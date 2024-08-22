@@ -3,7 +3,7 @@ package com.mj.core.pricecheck
 import android.content.Context
 import android.content.Intent
 import com.mj.core.alarm.AlarmHelper
-import com.mj.core.alarm.AlarmHelper.ComponentType.*
+import com.mj.core.alarm.AlarmHelper.ComponentType.Receiver
 import com.mj.core.common.compose.removeHtmlTag
 import com.mj.core.ktx.Calendar
 import com.mj.core.ktx.startOfNextDay
@@ -15,7 +15,6 @@ import com.mj.data.repo.remote.data.ShoppingVo
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
 
 class PriceCheckManager @Inject constructor(
     @ApplicationContext private val context: Context,

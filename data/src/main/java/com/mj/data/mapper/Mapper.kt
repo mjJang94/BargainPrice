@@ -1,16 +1,8 @@
 package com.mj.data.mapper
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import com.mj.data.repo.local.entity.ShoppingEntity
 import com.mj.data.repo.remote.data.ShoppingVo
 import com.mj.domain.model.ShoppingData
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import java.net.URL
-import kotlin.math.ceil
-import kotlin.math.max
 
 @JvmName("translateFromRemote")
 fun List<ShoppingVo.Item>.translate(): List<ShoppingData> = this.map {

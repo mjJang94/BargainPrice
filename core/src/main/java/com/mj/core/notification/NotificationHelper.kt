@@ -11,9 +11,11 @@ class NotificationHelper @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    private val CHANNEL_ID = "example_channel_id"
-    private val CHANNEL_NAME = "Example Channel"
-    private val CHANNEL_DESCRIPTION = "This is an example channel for notifications"
+    companion object{
+        private const val CHANNEL_ID = "example_channel_id"
+        private const val CHANNEL_NAME = "Example Channel"
+        private const val CHANNEL_DESCRIPTION = "This is an example channel for notifications"
+    }
 
     init {
         createNotificationChannel()

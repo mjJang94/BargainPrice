@@ -1,7 +1,6 @@
 package com.mj.data.di
 
 import android.content.Context
-import androidx.datastore.core.DataStore
 import androidx.room.Room
 import com.mj.data.repo.DataRepositoryImpl
 import com.mj.data.repo.datasource.DataSource
@@ -9,15 +8,14 @@ import com.mj.data.repo.datasource.DataSourceImpl
 import com.mj.data.repo.local.AppDatabase
 import com.mj.data.repo.local.dao.ShoppingDao
 import com.mj.data.repo.local.pref.DataStoreManager
-import com.mj.data.repo.remote.api.RemoteApiService
 import com.mj.data.repo.remote.api.NaverApi
+import com.mj.data.repo.remote.api.RemoteApiService
 import com.mj.domain.bridge.DataRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import java.util.prefs.Preferences
 import javax.inject.Singleton
 
 @Module

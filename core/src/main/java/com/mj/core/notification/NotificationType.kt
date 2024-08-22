@@ -26,7 +26,7 @@ sealed class NotificationType(
         private val context: Context,
         private val reason: String,
     ) : NotificationType(
-        title = context.getString(R.string.noti_refresh_success_title),
+        title = context.getString(R.string.noti_refresh_fail_title),
         message = reason,
         actionText = null,
         pendingIntent = null,

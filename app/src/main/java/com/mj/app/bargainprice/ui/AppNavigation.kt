@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.mj.app.bargainprice.ui.Navigation.Args.SOHPPING_DATA
+import com.mj.app.bargainprice.ui.Navigation.Args.SHOPPING_DATA
 import com.mj.app.bargainprice.ui.Navigation.Routes.DETAIL
 import com.mj.app.bargainprice.ui.Navigation.Routes.HOME
 import com.mj.home.navigation.HomeScreenDestination
@@ -28,12 +28,12 @@ fun AppNavigation() {
         }
 
         composable(
-            route = "$DETAIL/{$SOHPPING_DATA}",
-            arguments = listOf(navArgument(name = SOHPPING_DATA) {
+            route = "$DETAIL/{$SHOPPING_DATA}",
+            arguments = listOf(navArgument(name = SHOPPING_DATA) {
                 type = NavType.StringType
             })
         ) { backStackEntry ->
-            val url = backStackEntry.arguments?.getString(SOHPPING_DATA)
+            val url = backStackEntry.arguments?.getString(SHOPPING_DATA)
             if (url == null) {
                 navController.popBackStack()
             } else {
@@ -48,7 +48,7 @@ fun AppNavigation() {
 
 object Navigation {
     object Args {
-        const val SOHPPING_DATA = "shopping_data"
+        const val SHOPPING_DATA = "shopping_data"
     }
 
     object Routes {

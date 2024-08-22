@@ -65,11 +65,11 @@ room_compiler = { group = "androidx.room", name = "room-compiler", version.ref =
 room_ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room"}
 
 kotlinx-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version.ref = "kotlinx-collections" }
-hilt = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 retrofit-interceptor = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "interceptor" }
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
+hilt = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }

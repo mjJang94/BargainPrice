@@ -1,18 +1,10 @@
 <resources>
     <string name="search">검색</string>
     <string name="favorite">관심상품</string>
-    <string name="delete">삭제</string>
     <string name="query_label">검색어</string>
     <string name="empty_query">검색어를 입력해주세요.</string>
-    <string name="empty_favorite">즐겨찾기 상품이 없습니다.</string>
-    <string name="home_screen_already_scrap">이미 스크랩 되어 있습니다.</string>
-    <string name="home_screen_loaded_result_empty">검색 결과가 없습니다</string>
-    <string name="home_screen_scrap_result_empty">스크랩한 뉴스가 없습니다</string>
-    <string name="network_error_title">로드 실패</string>
-    <string name="network_error_description">네트워크 에러가 발생했어요. 인터넷 연결 상태를 확인하시거나 재시도 해주세요. </string>
+    <string name="empty_favorite">관심 상품이 없습니다.</string>
     <string name="network_error_retry_button_text">다시 불러오기</string>
-    <string name="scrap_complete">스크랩 완료</string>
-    <string name="scrap_failure">스크랩 실패</string>
     <string name="fetch_data_from_server">데이터 로드 중</string>
 
     <string name="refresh_price_label">매일 가격 갱신 알림(자정)</string>

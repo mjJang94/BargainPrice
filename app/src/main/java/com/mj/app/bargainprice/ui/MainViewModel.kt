@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.mj.data.repo.local.pref.DataStoreManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -17,7 +16,6 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     val alarmActive = dataStore.priceCheckAlarmActiveFlow
-        .map { it ?: false }
         .shareIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily,

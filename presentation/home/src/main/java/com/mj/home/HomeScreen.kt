@@ -78,13 +78,13 @@ import com.mj.core.common.compose.ImmutableGlideImage
 import com.mj.core.common.compose.appendCategoryData
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
-import com.mj.core.theme.gray
 import com.mj.core.theme.green_100
 import com.mj.core.theme.green_200
 import com.mj.core.theme.green_300
 import com.mj.core.theme.green_50
 import com.mj.core.theme.green_500
 import com.mj.core.theme.green_700
+import com.mj.core.theme.green_900
 import com.mj.core.theme.white
 import com.mj.core.toPriceFormat
 import com.mj.home.HomeViewModel.ShoppingItem
@@ -231,8 +231,8 @@ private fun HomeContent(
                             text = stringResource(id = title.resId),
                             style = Typography.titleLarge,
                             color = when (pagerState.currentPage == index) {
-                                true -> white
-                                else -> gray
+                                true -> green_50
+                                else -> green_900
                             }
                         )
                     },
