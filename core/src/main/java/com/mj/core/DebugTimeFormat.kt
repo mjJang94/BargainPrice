@@ -7,7 +7,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
 fun Long.timeFormatDebugFull(): String =
-    format("yyyy-MM-dd HH:mm:ss")
+    format("yyyy-MM-dd HH:mm")
 
 fun Long.timeFormatDebugLong() =
     format("MM-dd HH:mm:ss")

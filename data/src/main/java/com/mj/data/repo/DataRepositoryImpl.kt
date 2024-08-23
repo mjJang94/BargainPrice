@@ -49,4 +49,6 @@ class DataRepositoryImpl(
     override suspend fun setRecentQueries(queries: Set<String>) =
         dataSource.setRecentQueries(queries)
 
+    override fun getRefreshTimeFlow(): Flow<Long> =
+        dataSource.getRefreshTime()
 }

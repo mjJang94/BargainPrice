@@ -3,6 +3,7 @@ package com.mj.data.repo.local.pref
 import android.content.Context
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,6 +20,7 @@ class DataStoreManager @Inject constructor(
     companion object {
         val PRICE_CHECK_ALARM_ACTIVATION_KEY = booleanPreferencesKey("PRICE_CHECK_ALARM_ACTIVATION_KEY")
         val RECENT_SEARCH_QUERIES = stringSetPreferencesKey("RECENT_SEARCH_QUERIES")
+        val RECENT_REFRESH_TIME = longPreferencesKey("RECENT_REFRESH_TIME")
     }
 
     suspend fun storePriceCheckAlarmActivation(checked: Boolean) {
@@ -33,11 +35,21 @@ class DataStoreManager @Inject constructor(
         }
     }
 
+    suspend fun storeRecentRefreshTime(time: Long) {
+        context.dataStore.edit { store ->
+            store[RECENT_REFRESH_TIME] = time
+        }
+    }
+
     val priceCheckAlarmActiveFlow: Flow<Boolean> = context.dataStore.data.map {
         it[PRICE_CHECK_ALARM_ACTIVATION_KEY] ?: false
     }
 
     val recentSearchQueries: Flow<Set<String>> = context.dataStore.data.map {
         it[RECENT_SEARCH_QUERIES] ?: emptySet()
+    }
+
+    val recentRefreshTime: Flow<Long> = context.dataStore.data.map {
+        it[RECENT_REFRESH_TIME] ?: 0L
     }
 }

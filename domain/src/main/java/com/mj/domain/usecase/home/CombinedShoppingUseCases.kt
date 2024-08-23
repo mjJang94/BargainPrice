@@ -9,4 +9,5 @@ data class CombinedShoppingUseCases(
     val setAlarmActiveUseCase: SetAlarmActiveUseCase,
     val getRecentQueriesUseCase: GetRecentQueriesUseCase,
     val setRecentQueriesUseCase: SetRecentQueriesUseCase,
+    val getRefreshTimeUseCase: GetRefreshTimeUseCase,
 )

@@ -20,7 +20,6 @@ import androidx.lifecycle.lifecycleScope
 import com.mj.app.bargainprice.core.PriceCheckReceiver
 import com.mj.app.bargainprice.core.PriceCheckService
 import com.mj.core.alarm.AlarmHelper
-import com.mj.core.alarm.AlarmHelper.ComponentType
 import com.mj.core.alarm.AlarmHelper.ComponentType.Receiver
 import com.mj.core.ktx.Calendar
 import com.mj.core.ktx.startOfNextDay
@@ -93,9 +92,10 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun setAlarmSchedule() {
-        val time = Calendar(System.currentTimeMillis()).startOfNextDay()
+        alarm.cancel(type = Receiver, intent = PriceCheckReceiver.intent(this@MainActivity))
+        val triggerTime = Calendar(System.currentTimeMillis()).startOfNextDay()
         alarm.set(
-            triggerTime = time.timeInMillis,
+            triggerTime = triggerTime.timeInMillis,
             type = Receiver,
             intent = PriceCheckReceiver.intent(this@MainActivity)
         )
@@ -103,11 +103,10 @@ class MainActivity : ComponentActivity() {
 
     private fun cancelAlarm() {
         alarm.cancel(
-            type = ComponentType.Service,
+            type = Receiver,
             intent = PriceCheckService.intent(this@MainActivity)
         )
     }
-
 
     private val postNotificationPermissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted: Boolean ->

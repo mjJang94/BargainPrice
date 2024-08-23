@@ -48,6 +48,7 @@ class PriceCheckManager @Inject constructor(
             }
             setAlarmSchedule(interactIntent)
         }.onSuccess {
+            setRefreshAlarm(System.currentTimeMillis())
             fireSuccessNotification(context, actionIntent)
             result()
         }.onFailure { tr ->
@@ -58,12 +59,16 @@ class PriceCheckManager @Inject constructor(
     }
 
     private fun setAlarmSchedule(interactIntent: Intent) {
-        val time = Calendar(System.currentTimeMillis()).startOfNextDay()
+        alarm.cancel(type = Receiver, intent = interactIntent)
+        val triggerTime = Calendar(System.currentTimeMillis()).startOfNextDay()
         alarm.set(
-            triggerTime = time.timeInMillis,
+            triggerTime = triggerTime.timeInMillis,
             type = Receiver,
             intent = interactIntent,
         )
+    }
+    private suspend fun setRefreshAlarm(time: Long) {
+        dataSource.setRefreshTime(time)
     }
 
     private fun fireSuccessNotification(context: Context, notificationActionIntent: Intent) {

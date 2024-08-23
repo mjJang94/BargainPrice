@@ -24,7 +24,7 @@ class HomeViewModel @Inject constructor(
     private val combinedShoppingUseCases: CombinedShoppingUseCases
 ) : BaseViewModel<HomeContract.Event, HomeContract.State, HomeContract.Effect>() {
 
-    companion object{
+    companion object {
         private const val MAX_RECENT_QUERY_COUNT = 10
     }
 
@@ -32,6 +32,7 @@ class HomeViewModel @Inject constructor(
         getFavoriteShoppingItems()
         getRecentQueries()
         getAlarmActivation()
+        getRefreshTime()
     }
 
     override fun setInitialState() = HomeContract.State(
@@ -40,6 +41,7 @@ class HomeViewModel @Inject constructor(
         shoppingItems = MutableStateFlow(PagingData.empty()),
         recentQueries = MutableStateFlow(emptyList()),
         favoriteShoppingItems = MutableStateFlow(emptyList()),
+        refreshTime = MutableStateFlow(0L)
     )
 
     override fun handleEvents(event: HomeContract.Event) {
@@ -63,8 +65,9 @@ class HomeViewModel @Inject constructor(
 
     private val _shoppingInfo: MutableStateFlow<PagingData<ShoppingItem>> = MutableStateFlow(PagingData.empty())
     private val _favoriteShoppingInfo: MutableStateFlow<List<ShoppingItem>> = MutableStateFlow(emptyList())
-    private val _recentQueries: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
     private val _alarmActive: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _recentQueries: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
+    private val _recentRefreshTime: MutableStateFlow<Long> = MutableStateFlow(0L)
 
     private fun getShoppingItems() {
         viewModelScope.launch {
@@ -158,6 +161,17 @@ class HomeViewModel @Inject constructor(
                 .collect {
                     _recentQueries.emit(it.toList())
                     setState { copy(recentQueries = _recentQueries) }
+                }
+        }
+    }
+
+    private fun getRefreshTime() {
+        viewModelScope.launch {
+            combinedShoppingUseCases.getRefreshTimeUseCase()
+                .flowOn(Dispatchers.IO)
+                .collect {
+                    _recentRefreshTime.emit(it)
+                    setState { copy(refreshTime = _recentRefreshTime) }
                 }
         }
     }

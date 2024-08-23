@@ -41,4 +41,10 @@ class DataSourceImpl @Inject constructor(
 
     override suspend fun setRecentQueries(queries: Set<String>) =
         store.storeRecentSearchQueries(queries)
+
+    override fun getRefreshTime(): Flow<Long> =
+        store.recentRefreshTime
+
+    override suspend fun setRefreshTime(time: Long) =
+        store.storeRecentRefreshTime(time)
 }

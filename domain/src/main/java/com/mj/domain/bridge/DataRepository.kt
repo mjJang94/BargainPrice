@@ -17,4 +17,6 @@ interface DataRepository {
 
     fun getRecentSearchQueriesFlow(): Flow<Set<String>>
     suspend fun setRecentQueries(queries: Set<String>)
+
+    fun getRefreshTimeFlow(): Flow<Long>
 }

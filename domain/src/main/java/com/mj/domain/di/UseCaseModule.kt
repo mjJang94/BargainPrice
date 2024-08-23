@@ -7,6 +7,7 @@ import com.mj.domain.usecase.home.DeleteFavoriteShoppingUseCase
 import com.mj.domain.usecase.home.GetAlarmActiveUseCase
 import com.mj.domain.usecase.home.GetFavoriteShoppingUseCase
 import com.mj.domain.usecase.home.GetRecentQueriesUseCase
+import com.mj.domain.usecase.home.GetRefreshTimeUseCase
 import com.mj.domain.usecase.home.InsertFavoriteShoppingUseCase
 import com.mj.domain.usecase.home.SetAlarmActiveUseCase
 import com.mj.domain.usecase.home.SetRecentQueriesUseCase
@@ -33,5 +34,6 @@ object UseCaseModule {
         setAlarmActiveUseCase = SetAlarmActiveUseCase(repository),
         getRecentQueriesUseCase = GetRecentQueriesUseCase(repository),
         setRecentQueriesUseCase = SetRecentQueriesUseCase(repository),
+        getRefreshTimeUseCase = GetRefreshTimeUseCase(repository),
     )
 }

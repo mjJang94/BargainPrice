@@ -26,6 +26,7 @@ class HomeContract {
         val recentQueries: StateFlow<List<String>>,
         val shoppingItems: StateFlow<PagingData<ShoppingItem>>,
         val favoriteShoppingItems: StateFlow<List<ShoppingItem>>,
+        val refreshTime: StateFlow<Long>,
     ) : ViewState
 
     sealed class Effect : ViewSideEffect {
