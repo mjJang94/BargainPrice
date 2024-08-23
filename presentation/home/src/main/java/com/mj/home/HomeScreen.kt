@@ -44,7 +44,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -86,6 +85,7 @@ import com.mj.core.theme.green_500
 import com.mj.core.theme.green_700
 import com.mj.core.theme.green_900
 import com.mj.core.theme.white
+import com.mj.core.timeFormatDebugFull
 import com.mj.core.toPriceFormat
 import com.mj.home.HomeViewModel.ShoppingItem
 import com.mj.home.model.Pages
@@ -118,7 +118,8 @@ fun HomeScreen(
     val changedQuery by state.changedQuery.collectAsStateWithLifecycle()
     val favoriteItems by state.favoriteShoppingItems.collectAsStateWithLifecycle()
     val recentQueriesItems by state.recentQueries.collectAsStateWithLifecycle()
-    val priceAlarmActivated by state.priceAlarmActivated.collectAsState()
+    val priceAlarmActivated by state.priceAlarmActivated.collectAsStateWithLifecycle()
+    val currentRefreshTime by state.refreshTime.collectAsStateWithLifecycle()
 
     val emptyQueryMsg = stringResource(R.string.empty_query)
 
@@ -137,6 +138,7 @@ fun HomeScreen(
             changedQuery = changedQuery,
             pagerState = pagerState,
             priceAlarmActivated = priceAlarmActivated,
+            currentRefreshTime = currentRefreshTime,
             shoppingItems = shoppingItems,
             recentQueriesItems = remember(recentQueriesItems) { recentQueriesItems.toImmutableList() },
             favoriteItems = remember(favoriteItems) { favoriteItems.toImmutableList() },
@@ -163,6 +165,7 @@ private fun HomeContent(
     changedQuery: String,
     pagerState: PagerState,
     priceAlarmActivated: Boolean,
+    currentRefreshTime: Long,
     shoppingItems: LazyPagingItems<ShoppingItem>,
     recentQueriesItems: ImmutableList<String>,
     favoriteItems: ImmutableList<ShoppingItem>,
@@ -206,6 +209,7 @@ private fun HomeContent(
                 Pages.FAVORITE -> {
                     FavoriteListPage(
                         priceAlarmActivated = priceAlarmActivated,
+                        currentRefreshTime = currentRefreshTime,
                         favoriteItem = favoriteItems,
                         onPriceAlarmActive = onPriceAlarmActive,
                         onDeleteFavoriteClick = onDeleteFavoriteClick,
@@ -412,7 +416,7 @@ private fun ShoppingList(
             key = shoppingItems.itemKey { it.productId },
         ) { index ->
             val item = shoppingItems[index] ?: return@items
-            ShoppingItem(
+            ShoppingListRow(
                 item = item,
                 onAddFavoriteClick = onAddFavoriteClick,
                 onDeleteFavoriteClick = onDeleteFavoriteClick,
@@ -447,6 +451,7 @@ private fun ShoppingList(
 @Composable
 private fun FavoriteListPage(
     priceAlarmActivated: Boolean,
+    currentRefreshTime: Long,
     favoriteItem: ImmutableList<ShoppingItem>,
     onPriceAlarmActive: (Boolean) -> Unit,
     onDeleteFavoriteClick: (String) -> Unit,
@@ -460,6 +465,7 @@ private fun FavoriteListPage(
                     .fillMaxWidth()
                     .padding(all = 10.dp),
                 isChecked = priceAlarmActivated,
+                currentRefreshTime = currentRefreshTime,
                 onPriceAlarmActive = onPriceAlarmActive,
             )
         }
@@ -491,7 +497,7 @@ private fun FavoriteListPage(
                             key = { index -> favoriteItem[index].productId }
                         ) { index ->
                             val item = favoriteItem[index]
-                            ShoppingItem(
+                            ShoppingListRow(
                                 item = item,
                                 onDeleteFavoriteClick = onDeleteFavoriteClick,
                                 onItemClick = onItemClick,
@@ -505,7 +511,7 @@ private fun FavoriteListPage(
 }
 
 @Composable
-private fun ShoppingItem(
+private fun ShoppingListRow(
     item: ShoppingItem,
     onAddFavoriteClick: (ShoppingItem) -> Unit = {},
     onDeleteFavoriteClick: (String) -> Unit = {},
@@ -702,6 +708,7 @@ private fun PriceLabel(
 private fun PriceAlarmSwitch(
     modifier: Modifier = Modifier,
     isChecked: Boolean,
+    currentRefreshTime: Long,
     onPriceAlarmActive: (Boolean) -> Unit,
 ) {
     var checked by remember { mutableStateOf(isChecked) }
@@ -711,10 +718,19 @@ private fun PriceAlarmSwitch(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(
-            text = stringResource(id = R.string.refresh_price_label),
-            style = Typography.bodyMedium,
-        )
+        Column {
+            Text(
+                text = stringResource(id = R.string.refresh_price_label),
+                style = Typography.bodyMedium,
+            )
+
+            if (currentRefreshTime > 0L) {
+                Text(
+                    text = "${stringResource(id = R.string.refresh_last_time)} ${currentRefreshTime.timeFormatDebugFull()}",
+                    style = Typography.bodySmall,
+                )
+            }
+        }
 
         Switch(
             checked = checked,
@@ -819,6 +835,7 @@ private fun HomeScreenPreview() {
                 shoppingItems = MutableStateFlow(PagingData.empty()),
                 recentQueries = MutableStateFlow(emptyList()),
                 favoriteShoppingItems = MutableStateFlow(emptyList()),
+                refreshTime = MutableStateFlow(0L),
             ),
             effectFlow = null,
             onEventSent = {},
@@ -836,6 +853,7 @@ private fun PriceAlarmSwitchPreview() {
                 .fillMaxWidth()
                 .background(white),
             isChecked = false,
+            currentRefreshTime = System.currentTimeMillis(),
             onPriceAlarmActive = {}
         )
     }
