@@ -4,14 +4,12 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.os.SystemClock
 import com.mj.core.flags
 import com.mj.core.perm.PermissionHelper
 import com.mj.core.timeFormatDebugFull
 import dagger.hilt.android.qualifiers.ApplicationContext
 import timber.log.Timber
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.minutes
 
 class AlarmHelper @Inject constructor(
     @ApplicationContext private val context: Context,
