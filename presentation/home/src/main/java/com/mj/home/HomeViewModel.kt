@@ -6,7 +6,7 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.mj.core.base.BaseViewModel
 import com.mj.core.common.compose.removeHtmlTag
-import com.mj.domain.model.ShoppingData
+import com.mj.domain.model.Shopping
 import com.mj.domain.usecase.home.CombinedShoppingUseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -197,7 +197,7 @@ class HomeViewModel @Inject constructor(
         val isRefreshFail: Boolean,
     )
 
-    private fun PagingData<ShoppingData>.formalize(favorite: List<ShoppingItem>): PagingData<ShoppingItem> = this.map {
+    private fun PagingData<Shopping>.formalize(favorite: List<ShoppingItem>): PagingData<ShoppingItem> = this.map {
         ShoppingItem(
             title = it.title.removeHtmlTag(),
             link = it.link,
@@ -220,7 +220,7 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private fun List<ShoppingData>.formalize(): List<ShoppingItem> = this.map {
+    private fun List<Shopping>.formalize(): List<ShoppingItem> = this.map {
         ShoppingItem(
             title = it.title.removeHtmlTag(),
             link = it.link,
@@ -243,7 +243,7 @@ class HomeViewModel @Inject constructor(
         )
     }
 
-    private fun ShoppingItem.translate(): ShoppingData = ShoppingData(
+    private fun ShoppingItem.translate(): Shopping = Shopping(
         title = title.removeHtmlTag(),
         link = link,
         image = image,

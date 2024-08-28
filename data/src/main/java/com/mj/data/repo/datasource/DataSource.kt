@@ -1,5 +1,6 @@
 package com.mj.data.repo.datasource
 
+import com.mj.data.repo.local.entity.RecordPriceEntity
 import com.mj.data.repo.local.entity.ShoppingEntity
 import com.mj.data.repo.remote.data.ShoppingVo
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,9 @@ interface DataSource {
     suspend fun getAllShoppingItems(): List<ShoppingEntity>
     suspend fun insertShoppingItem(shoppingEntity: ShoppingEntity)
     suspend fun deleteShoppingItem(productId: String): Int
+
+    fun recordPriceFlow(productId: String, startTime: Long, endTime: Long): Flow<List<RecordPriceEntity>>
+    suspend fun insertRecordPriceItem(recordPriceEntity: RecordPriceEntity)
 
     fun getAlarmActiveFlow(): Flow<Boolean>
     suspend fun setAlarmActive(active: Boolean)

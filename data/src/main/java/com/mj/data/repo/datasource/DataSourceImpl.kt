@@ -1,6 +1,8 @@
 package com.mj.data.repo.datasource
 
+import com.mj.data.repo.local.dao.RecordPriceDao
 import com.mj.data.repo.local.dao.ShoppingDao
+import com.mj.data.repo.local.entity.RecordPriceEntity
 import com.mj.data.repo.local.entity.ShoppingEntity
 import com.mj.data.repo.local.pref.DataStoreManager
 import com.mj.data.repo.remote.api.NaverApi
@@ -10,6 +12,7 @@ import javax.inject.Inject
 class DataSourceImpl @Inject constructor(
     private val naverApi: NaverApi,
     private val shoppingDao: ShoppingDao,
+    private val recordPriceDao: RecordPriceDao,
     private val store: DataStoreManager
 ) : DataSource {
     override suspend fun getShoppingData(query: String, page: Int, pageSize: Int) =
@@ -29,6 +32,12 @@ class DataSourceImpl @Inject constructor(
 
     override suspend fun deleteShoppingItem(productId: String): Int =
         shoppingDao.deleteById(productId)
+
+    override fun recordPriceFlow(productId: String, startTime: Long, endTime: Long): Flow<List<RecordPriceEntity>> =
+        recordPriceDao.flow(productId, startTime, endTime)
+
+    override suspend fun insertRecordPriceItem(recordPriceEntity: RecordPriceEntity) =
+        recordPriceDao.insert(recordPriceEntity)
 
     override fun getAlarmActiveFlow(): Flow<Boolean> =
         store.priceCheckAlarmActiveFlow

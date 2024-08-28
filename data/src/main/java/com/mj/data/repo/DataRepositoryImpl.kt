@@ -9,14 +9,15 @@ import com.mj.data.repo.remote.paging.MAX_PAGE_SIZE
 import com.mj.data.repo.remote.paging.PREFETCH_DISTANCE
 import com.mj.data.repo.remote.paging.ShoppingPagingSource
 import com.mj.domain.bridge.DataRepository
-import com.mj.domain.model.ShoppingData
+import com.mj.domain.model.RecordPrice
+import com.mj.domain.model.Shopping
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class DataRepositoryImpl(
     private val dataSource: DataSource
 ) : DataRepository {
-    override suspend fun getShoppingList(query: String): Flow<PagingData<ShoppingData>> {
+    override suspend fun getShoppingList(query: String): Flow<PagingData<Shopping>> {
         return Pager(
             config = PagingConfig(pageSize = MAX_PAGE_SIZE, prefetchDistance = PREFETCH_DISTANCE),
             pagingSourceFactory = {
@@ -25,17 +26,23 @@ class DataRepositoryImpl(
         ).flow
     }
 
-    override fun shoppingFlow(): Flow<List<ShoppingData>> =
+    override fun shoppingFlow(): Flow<List<Shopping>> =
         dataSource.shoppingFlow().map { it.translate() }
 
-    override suspend fun getAllShoppingItems(): List<ShoppingData> =
+    override suspend fun getAllShoppingItems(): List<Shopping> =
         dataSource.getAllShoppingItems().translate()
 
-    override suspend fun insertShoppingItem(data: ShoppingData) =
+    override suspend fun insertShoppingItem(data: Shopping) =
         dataSource.insertShoppingItem(data.translate())
 
     override suspend fun deleteShoppingItem(productId: String): Int =
         dataSource.deleteShoppingItem(productId)
+
+    override fun recordPriceFlow(productId: String, startTime: Long, endTime: Long): Flow<List<RecordPrice>> =
+        dataSource.recordPriceFlow(productId, startTime, endTime).map { it.translate() }
+
+    override suspend fun insertRecordPriceItem(recordPrice: RecordPrice) =
+        dataSource.insertRecordPriceItem(recordPrice.translate())
 
     override fun getAlarmActive(): Flow<Boolean> =
         dataSource.getAlarmActiveFlow()

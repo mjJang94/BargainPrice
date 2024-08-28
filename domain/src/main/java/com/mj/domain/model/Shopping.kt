@@ -1,7 +1,7 @@
 package com.mj.domain.model
 
 
-data class ShoppingData(
+data class Shopping(
     val title: String,
     val link: String,
     val image: String,

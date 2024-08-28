@@ -1,16 +1,20 @@
 package com.mj.domain.bridge
 
 import androidx.paging.PagingData
-import com.mj.domain.model.ShoppingData
+import com.mj.domain.model.RecordPrice
+import com.mj.domain.model.Shopping
 import kotlinx.coroutines.flow.Flow
 
 interface DataRepository {
-    suspend fun getShoppingList(query: String): Flow<PagingData<ShoppingData>>
+    suspend fun getShoppingList(query: String): Flow<PagingData<Shopping>>
 
-    fun shoppingFlow(): Flow<List<ShoppingData>>
-    suspend fun getAllShoppingItems(): List<ShoppingData>
-    suspend fun insertShoppingItem(data: ShoppingData)
+    fun shoppingFlow(): Flow<List<Shopping>>
+    suspend fun getAllShoppingItems(): List<Shopping>
+    suspend fun insertShoppingItem(data: Shopping)
     suspend fun deleteShoppingItem(productId: String): Int
+
+    fun recordPriceFlow(productId: String, startTime: Long, endTime: Long): Flow<List<RecordPrice>>
+    suspend fun insertRecordPriceItem(recordPrice: RecordPrice)
 
     fun getAlarmActive(): Flow<Boolean>
     suspend fun setAlarmActive(active: Boolean)

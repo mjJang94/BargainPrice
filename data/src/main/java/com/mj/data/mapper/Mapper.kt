@@ -1,12 +1,14 @@
 package com.mj.data.mapper
 
+import com.mj.data.repo.local.entity.RecordPriceEntity
 import com.mj.data.repo.local.entity.ShoppingEntity
 import com.mj.data.repo.remote.data.ShoppingVo
-import com.mj.domain.model.ShoppingData
+import com.mj.domain.model.RecordPrice
+import com.mj.domain.model.Shopping
 
 @JvmName("translateFromRemote")
-fun List<ShoppingVo.Item>.translate(): List<ShoppingData> = this.map {
-    ShoppingData(
+fun List<ShoppingVo.Item>.translate(): List<Shopping> = this.map {
+    Shopping(
         title = it.title,
         link = it.link,
         image = it.image,
@@ -28,8 +30,8 @@ fun List<ShoppingVo.Item>.translate(): List<ShoppingData> = this.map {
 }
 
 @JvmName("translateFromLocal")
-fun List<ShoppingEntity>.translate(): List<ShoppingData> = this.map {
-    ShoppingData(
+fun List<ShoppingEntity>.translate(): List<Shopping> = this.map {
+    Shopping(
         title = it.title,
         link = it.link,
         image = it.image,
@@ -50,7 +52,16 @@ fun List<ShoppingEntity>.translate(): List<ShoppingData> = this.map {
     )
 }
 
-fun ShoppingData.translate(): ShoppingEntity = ShoppingEntity(
+fun List<RecordPriceEntity>.translate(): List<RecordPrice> = this.map {
+    RecordPrice(
+        productId = it.productId,
+        lowestPrice = it.lowestPrice,
+        highestPrice = it.highestPrice,
+        timeStamp = it.timeStamp,
+    )
+}
+
+fun Shopping.translate(): ShoppingEntity = ShoppingEntity(
     title = title,
     link = link,
     image = image,
@@ -68,4 +79,11 @@ fun ShoppingData.translate(): ShoppingEntity = ShoppingEntity(
     category3 = category3,
     category4 = category4,
     isRefreshFail = isRefreshFail,
+)
+
+fun RecordPrice.translate(): RecordPriceEntity = RecordPriceEntity(
+    productId = productId,
+    lowestPrice = lowestPrice,
+    highestPrice = highestPrice,
+    timeStamp = timeStamp,
 )

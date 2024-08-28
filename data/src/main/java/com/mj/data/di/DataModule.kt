@@ -6,6 +6,7 @@ import com.mj.data.repo.DataRepositoryImpl
 import com.mj.data.repo.datasource.DataSource
 import com.mj.data.repo.datasource.DataSourceImpl
 import com.mj.data.repo.local.AppDatabase
+import com.mj.data.repo.local.dao.RecordPriceDao
 import com.mj.data.repo.local.dao.ShoppingDao
 import com.mj.data.repo.local.pref.DataStoreManager
 import com.mj.data.repo.remote.api.NaverApi
@@ -52,13 +53,19 @@ object DataModule {
 
     @Provides
     @Singleton
+    fun provideRecordPriceDao(appDatabase: AppDatabase): RecordPriceDao = appDatabase.recordPriceDao()
+
+    @Provides
+    @Singleton
     fun provideDataSource(
         naverApi: NaverApi,
         shoppingDao: ShoppingDao,
+        recordPriceDao: RecordPriceDao,
         store: DataStoreManager,
     ): DataSource = DataSourceImpl(
         naverApi = naverApi,
         shoppingDao = shoppingDao,
+        recordPriceDao = recordPriceDao,
         store = store,
     )
 

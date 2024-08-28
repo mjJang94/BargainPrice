@@ -1,9 +1,9 @@
 package com.mj.home.model
 
 import androidx.paging.PagingData
-import com.mj.domain.model.ShoppingData
+import com.mj.domain.model.Shopping
 
 data class HomeInfo(
 
-    val shoppingData: PagingData<ShoppingData>
+    val shopping: PagingData<Shopping>
 )
