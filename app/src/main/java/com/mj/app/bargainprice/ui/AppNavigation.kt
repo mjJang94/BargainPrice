@@ -8,10 +8,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.mj.app.bargainprice.ui.Navigation.Args.SHOPPING_DATA
+import com.mj.app.bargainprice.ui.Navigation.Args.FAVORITE_PRODUCT_ID
 import com.mj.app.bargainprice.ui.Navigation.Routes.DETAIL
 import com.mj.app.bargainprice.ui.Navigation.Routes.HOME
-import com.mj.home.navigation.HomeScreenDestination
+import com.mj.presentation.detail.navigation.DetailScreenDestination
+import com.mj.presentation.home.navigation.HomeScreenDestination
 
 @Composable
 fun AppNavigation() {
@@ -28,19 +29,19 @@ fun AppNavigation() {
         }
 
         composable(
-            route = "$DETAIL/{$SHOPPING_DATA}",
-            arguments = listOf(navArgument(name = SHOPPING_DATA) {
+            route = "$DETAIL/{$FAVORITE_PRODUCT_ID}",
+            arguments = listOf(navArgument(name = FAVORITE_PRODUCT_ID) {
                 type = NavType.StringType
             })
         ) { backStackEntry ->
-            val url = backStackEntry.arguments?.getString(SHOPPING_DATA)
-            if (url == null) {
+            val productId = backStackEntry.arguments?.getString(FAVORITE_PRODUCT_ID)
+            if (productId == null) {
                 navController.popBackStack()
             } else {
-//                DetailScreenDestination(
-//                    url = URLDecoder.decode(url, StandardCharsets.UTF_8.toString()),
-//                    navController = navController,
-//                )
+                DetailScreenDestination(
+                    productId = productId,
+                    navController = navController,
+                )
             }
         }
     }
@@ -48,11 +49,11 @@ fun AppNavigation() {
 
 object Navigation {
     object Args {
-        const val SHOPPING_DATA = "shopping_data"
+        const val FAVORITE_PRODUCT_ID = "FAVORITE_PRODUCT_ID"
     }
 
     object Routes {
-        const val HOME = "home"
-        const val DETAIL = "detail"
+        const val HOME = "HOME"
+        const val DETAIL = "DETAIL"
     }
 }

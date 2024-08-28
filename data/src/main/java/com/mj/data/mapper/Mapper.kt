@@ -31,26 +31,28 @@ fun List<ShoppingVo.Item>.translate(): List<Shopping> = this.map {
 
 @JvmName("translateFromLocal")
 fun List<ShoppingEntity>.translate(): List<Shopping> = this.map {
-    Shopping(
-        title = it.title,
-        link = it.link,
-        image = it.image,
-        lowestPrice = it.lowestPrice,
-        highestPrice = it.highestPrice,
-        prevLowestPrice = it.prevLowestPrice,
-        prevHighestPrice = it.prevHighestPrice,
-        mallName = it.mallName,
-        productId = it.productId,
-        productType = it.productType,
-        maker = it.maker,
-        brand = it.brand,
-        category1 = it.category1,
-        category2 = it.category2,
-        category3 = it.category3,
-        category4 = it.category4,
-        isRefreshFail = it.isRefreshFail,
-    )
+    it.translate()
 }
+
+fun ShoppingEntity.translate(): Shopping = Shopping(
+    title = title,
+    link = link,
+    image = image,
+    lowestPrice = lowestPrice,
+    highestPrice = highestPrice,
+    prevLowestPrice = prevLowestPrice,
+    prevHighestPrice = prevHighestPrice,
+    mallName = mallName,
+    productId = productId,
+    productType = productType,
+    maker = maker,
+    brand = brand,
+    category1 = category1,
+    category2 = category2,
+    category3 = category3,
+    category4 = category4,
+    isRefreshFail = isRefreshFail,
+)
 
 fun List<RecordPriceEntity>.translate(): List<RecordPrice> = this.map {
     RecordPrice(

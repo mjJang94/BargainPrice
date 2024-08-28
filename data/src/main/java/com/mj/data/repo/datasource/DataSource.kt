@@ -11,6 +11,7 @@ interface DataSource {
     suspend fun refreshFavoriteList(query: String, page: Int, pageSize: Int): ShoppingVo
 
     fun shoppingFlow(): Flow<List<ShoppingEntity>>
+    fun getShoppingFlowById(productId: String): Flow<ShoppingEntity>
     suspend fun getAllShoppingItems(): List<ShoppingEntity>
     suspend fun insertShoppingItem(shoppingEntity: ShoppingEntity)
     suspend fun deleteShoppingItem(productId: String): Int

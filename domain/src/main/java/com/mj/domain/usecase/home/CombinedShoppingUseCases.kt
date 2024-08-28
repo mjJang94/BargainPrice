@@ -2,7 +2,7 @@ package com.mj.domain.usecase.home
 
 data class CombinedShoppingUseCases(
     val getShoppingData: GetShoppingDataUseCase,
-    val getFavoriteShoppingData: GetFavoriteShoppingUseCase,
+    val getFavoriteShoppingData: GetFavoriteShoppingListUseCase,
     val insertFavoriteShoppingData: InsertFavoriteShoppingUseCase,
     val deleteFavoriteShoppingData: DeleteFavoriteShoppingUseCase,
     val getAlarmActiveUseCase: GetAlarmActiveUseCase,

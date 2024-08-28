@@ -32,6 +32,9 @@ class DataRepositoryImpl(
     override suspend fun getAllShoppingItems(): List<Shopping> =
         dataSource.getAllShoppingItems().translate()
 
+    override fun getShoppingFlowById(productId: String): Flow<Shopping> =
+        dataSource.getShoppingFlowById(productId).map { it.translate() }
+
     override suspend fun insertShoppingItem(data: Shopping) =
         dataSource.insertShoppingItem(data.translate())
 

@@ -10,6 +10,7 @@ import com.mj.core.ktx.startOfNextDay
 import com.mj.core.notification.NotificationHelper
 import com.mj.core.notification.NotificationType
 import com.mj.data.repo.datasource.DataSource
+import com.mj.data.repo.local.entity.RecordPriceEntity
 import com.mj.data.repo.local.entity.ShoppingEntity
 import com.mj.data.repo.remote.data.ShoppingVo
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -39,12 +40,18 @@ class PriceCheckManager @Inject constructor(
                     it.productId == cache.productId
                 }
 
-                val entity = when (refreshItem) {
+                val shoppingEntity = when (refreshItem) {
                     null -> cache.copy(isRefreshFail = true)
                     else -> refreshItem.formalize(cache)
                 }
-                Timber.d("new entity = $entity")
-                dataSource.insertShoppingItem(entity)
+
+                val recordPriceEntity = when (refreshItem) {
+                    null -> cache.translate()
+                    else -> refreshItem.formalize()
+                }
+                Timber.d("new entity = $shoppingEntity")
+                dataSource.insertShoppingItem(shoppingEntity)
+                dataSource.insertRecordPriceItem(recordPriceEntity)
             }
             setAlarmSchedule(interactIntent)
         }.onSuccess {
@@ -53,6 +60,7 @@ class PriceCheckManager @Inject constructor(
             result()
         }.onFailure { tr ->
             Timber.e(tr)
+            setRefreshAlarm(System.currentTimeMillis())
             fireFailureNotification(context, tr)
             result()
         }
@@ -67,6 +75,7 @@ class PriceCheckManager @Inject constructor(
             intent = interactIntent,
         )
     }
+
     private suspend fun setRefreshAlarm(time: Long) {
         dataSource.setRefreshTime(time)
     }
@@ -108,5 +117,21 @@ class PriceCheckManager @Inject constructor(
             category3 = category3,
             category4 = category4,
             isRefreshFail = false,
+        )
+
+    private fun ShoppingVo.Item.formalize(): RecordPriceEntity =
+        RecordPriceEntity(
+            productId = productId,
+            lowestPrice = lprice,
+            highestPrice = hprice,
+            timeStamp = System.currentTimeMillis(),
+        )
+
+    private fun ShoppingEntity.translate(): RecordPriceEntity =
+        RecordPriceEntity(
+            productId = productId,
+            lowestPrice = lowestPrice,
+            highestPrice = highestPrice,
+            timeStamp = System.currentTimeMillis(),
         )
 }

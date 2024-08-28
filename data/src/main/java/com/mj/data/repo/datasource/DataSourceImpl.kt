@@ -24,6 +24,9 @@ class DataSourceImpl @Inject constructor(
     override fun shoppingFlow(): Flow<List<ShoppingEntity>> =
         shoppingDao.flow()
 
+    override fun getShoppingFlowById(productId: String): Flow<ShoppingEntity> =
+        shoppingDao.getShoppingByIdFlow(productId)
+
     override suspend fun getAllShoppingItems(): List<ShoppingEntity> =
         shoppingDao.getAll()
 

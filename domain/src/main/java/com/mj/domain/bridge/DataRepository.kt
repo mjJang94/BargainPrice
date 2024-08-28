@@ -9,6 +9,7 @@ interface DataRepository {
     suspend fun getShoppingList(query: String): Flow<PagingData<Shopping>>
 
     fun shoppingFlow(): Flow<List<Shopping>>
+    fun getShoppingFlowById(productId: String): Flow<Shopping>
     suspend fun getAllShoppingItems(): List<Shopping>
     suspend fun insertShoppingItem(data: Shopping)
     suspend fun deleteShoppingItem(productId: String): Int

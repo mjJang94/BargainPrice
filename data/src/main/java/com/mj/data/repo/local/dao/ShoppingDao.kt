@@ -13,6 +13,9 @@ interface ShoppingDao {
     @Query("SELECT * FROM Shoppingentity")
     fun flow(): Flow<List<ShoppingEntity>>
 
+    @Query("SELECT * FROM ShoppingEntity WHERE productId=:productId")
+    fun getShoppingByIdFlow(productId: String): Flow<ShoppingEntity>
+
     @Query("SELECT * FROM Shoppingentity")
     suspend fun getAll(): List<ShoppingEntity>
 
