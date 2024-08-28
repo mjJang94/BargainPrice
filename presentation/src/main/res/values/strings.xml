@@ -21,4 +21,6 @@
     <string name="category">카테고리 :</string>
     <string name="unknown">정보 미제공</string>
     <string name="unknown_price">가격정보 미제공</string>
+
+    <string name="detail_shopping_info_load_failure">상품 상세페이지를 불러오지 못했어요</string>
 </resources>

@@ -220,9 +220,7 @@ private fun HomeContent(
         }
 
         TabRow(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(topStart = 15.dp, topEnd = 15.dp)),
+            modifier = Modifier.fillMaxWidth(),
             selectedTabIndex = pagerState.currentPage,
             indicator = {},
             divider = {},

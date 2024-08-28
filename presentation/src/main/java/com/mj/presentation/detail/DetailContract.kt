@@ -3,6 +3,8 @@ package com.mj.presentation.detail
 import com.mj.core.base.ViewEvent
 import com.mj.core.base.ViewSideEffect
 import com.mj.core.base.ViewState
+import com.mj.domain.model.Shopping
+import kotlinx.coroutines.flow.StateFlow
 
 class DetailContract {
 
@@ -11,7 +13,7 @@ class DetailContract {
     }
 
     data class State(
-        val productId: String,
+        val shoppingInfo: StateFlow<Shopping?>,
     ) : ViewState
 
     sealed class Effect: ViewSideEffect {
