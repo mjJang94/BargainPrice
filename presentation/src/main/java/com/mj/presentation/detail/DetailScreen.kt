@@ -3,6 +3,7 @@
 package com.mj.presentation.detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,9 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -28,10 +29,14 @@ import com.mj.core.base.SIDE_EFFECTS_KEY
 import com.mj.core.common.compose.ImmutableGlideImage
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
+import com.mj.core.theme.black
+import com.mj.core.theme.green_500
+import com.mj.core.theme.green_700
 import com.mj.core.theme.white
 import com.mj.core.toPriceFormat
 import com.mj.domain.model.Shopping
 import com.mj.presentation.R
+import com.mj.presentation.detail.DetailContract.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -40,25 +45,27 @@ import kotlinx.coroutines.flow.onEach
 @Composable
 fun DetailScreen(
     modifier: Modifier = Modifier,
-    state: DetailContract.State,
-    effectFlow: Flow<DetailContract.Effect>?,
-    onEventSend: (event: DetailContract.Event) -> Unit,
-    onNavigationRequested: (effect: DetailContract.Effect.Navigation) -> Unit,
+    state: State,
+    effectFlow: Flow<Effect>?,
+    onEventSend: (event: Event) -> Unit,
+    onNavigationRequested: (effect: Effect) -> Unit,
 ) {
 
     val shoppingInfo by state.shoppingInfo.collectAsStateWithLifecycle()
 
     LaunchedEffect(SIDE_EFFECTS_KEY) {
         effectFlow?.onEach { effect ->
-            when (effect) {
-                is DetailContract.Effect.Navigation.ToMain -> onNavigationRequested(effect)
-            }
+            onNavigationRequested(effect)
         }?.collect()
     }
 
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+    ) {
         DetailContent(
-            shoppingInfo = shoppingInfo
+            shoppingInfo = shoppingInfo,
+            onClickMall = { link -> onEventSend(Event.MallClick(link))}
         )
     }
 }
@@ -66,11 +73,16 @@ fun DetailScreen(
 @Composable
 private fun DetailContent(
     shoppingInfo: Shopping?,
+    onClickMall: (String) -> Unit,
+
 ) {
     if (shoppingInfo == null) {
         LoadFail()
     } else {
-        FavoriteProduct(info = shoppingInfo)
+        FavoriteProduct(
+            info = shoppingInfo,
+            onClickMall = onClickMall,
+        )
     }
 }
 
@@ -80,9 +92,15 @@ private fun LoadFail() {
 }
 
 @Composable
-private fun FavoriteProduct(info: Shopping) {
+private fun FavoriteProduct(
+    info: Shopping,
+    onClickMall: (String) -> Unit,
+) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
         //이미지
         ImmutableGlideImage(
@@ -99,12 +117,16 @@ private fun FavoriteProduct(info: Shopping) {
             maxLines = 2,
         )
 
-        //몰
+        //판매처
         Text(
-            modifier = Modifier.padding(bottom = 10.dp),
+            modifier = Modifier.clickable { onClickMall(info.link) },
             text = info.mallName,
+            color = green_500,
+            textDecoration = TextDecoration.Underline,
             style = Typography.titleMedium,
         )
+
+        Spacer(modifier = Modifier.height(5.dp))
 
         //최고가
         PriceLabel(
@@ -118,6 +140,20 @@ private fun FavoriteProduct(info: Shopping) {
             isHighest = false,
             label = stringResource(id = R.string.lowest_price),
             price = info.lowestPrice,
+        )
+
+        //브랜드
+        Text(
+            text = "${stringResource(id = R.string.brand)} ${info.brand.ifEmpty { stringResource(id = R.string.unknown) }}",
+            style = Typography.bodyMedium,
+            color = black,
+        )
+
+        //제조사
+        Text(
+            text = "${stringResource(id = R.string.maker)} ${info.maker.ifEmpty { stringResource(id = R.string.unknown) }}",
+            style = Typography.bodyMedium,
+            color = black,
         )
     }
 }
@@ -143,10 +179,7 @@ private fun PriceLabel(
                 text = price.toPriceFormat()?.let { it + stringResource(id = R.string.price_won) } ?: stringResource(id = R.string.unknown_price),
                 style = Typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
-                color = when (isHighest) {
-                    true -> Color.Red
-                    else -> Color.Blue
-                }
+                color = green_700
             )
         }
     }
@@ -160,7 +193,7 @@ private fun DetailScreenPreview() {
             modifier = Modifier
                 .fillMaxSize()
                 .background(white),
-            state = DetailContract.State(
+            state = State(
                 shoppingInfo = MutableStateFlow(null)
             ),
             effectFlow = null,

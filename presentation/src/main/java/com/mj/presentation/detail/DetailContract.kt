@@ -10,6 +10,7 @@ class DetailContract {
 
     sealed class Event : ViewEvent {
         data object Back : Event()
+        data class MallClick(val link: String): Event()
     }
 
     data class State(
@@ -18,7 +19,8 @@ class DetailContract {
 
     sealed class Effect: ViewSideEffect {
         sealed class Navigation: Effect() {
-            data object ToMain: Navigation()
+            data object Back: Navigation()
+            data class OpenLink(val link: String): Navigation()
         }
     }
 }

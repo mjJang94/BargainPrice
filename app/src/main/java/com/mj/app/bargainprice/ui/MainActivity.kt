@@ -17,8 +17,12 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.compose.rememberNavController
 import com.mj.app.bargainprice.core.PriceCheckReceiver
 import com.mj.app.bargainprice.core.PriceCheckService
+import com.mj.app.bargainprice.ui.state.Event
+import com.mj.app.bargainprice.ui.state.HoistingEventCallback
+import com.mj.app.bargainprice.ui.state.rememberHoistingEventController
 import com.mj.core.alarm.AlarmHelper
 import com.mj.core.alarm.AlarmHelper.ComponentType.Receiver
 import com.mj.core.ktx.Calendar
@@ -31,7 +35,7 @@ import timber.log.Timber
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), HoistingEventCallback {
 
     @Inject
     lateinit var perm: PermissionHelper
@@ -66,8 +70,17 @@ class MainActivity : ComponentActivity() {
         }
         setContent {
             BargainPriceTheme {
-                AppNavigation()
+                AppNavigation(
+                    navController = rememberNavController(),
+                    hoistingEventController = rememberHoistingEventController(callback = this)
+                )
             }
+        }
+    }
+
+    override fun onEventReceived(event: Event) {
+        when (event) {
+            is Event.OpenLink -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(event.url)))
         }
     }
 

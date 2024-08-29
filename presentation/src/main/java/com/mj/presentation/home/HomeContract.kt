@@ -33,7 +33,7 @@ class HomeContract {
         data object EmptyQuery : Effect()
 
         sealed class Navigation : Effect() {
-            data class ToDetail(val id: String) : Navigation()
+            data class ToDetail(val productId: String) : Navigation()
         }
     }
 }

@@ -88,6 +88,9 @@ import com.mj.core.theme.white
 import com.mj.core.timeFormatDebugFull
 import com.mj.core.toPriceFormat
 import com.mj.presentation.R
+import com.mj.presentation.home.HomeContract.Effect
+import com.mj.presentation.home.HomeContract.Event
+import com.mj.presentation.home.HomeContract.State
 import com.mj.presentation.home.HomeViewModel.ShoppingItem
 import com.mj.presentation.home.model.Pages
 import kotlinx.collections.immutable.ImmutableList
@@ -101,10 +104,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    state: HomeContract.State,
-    effectFlow: Flow<HomeContract.Effect>?,
-    onEventSent: (event: HomeContract.Event) -> Unit,
-    onNavigationRequested: (effect: HomeContract.Effect.Navigation) -> Unit,
+    state: State,
+    effectFlow: Flow<Effect>?,
+    onEventSent: (event: Event) -> Unit,
+    onNavigationRequested: (effect: Effect.Navigation) -> Unit,
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -127,8 +130,8 @@ fun HomeScreen(
     LaunchedEffect(SIDE_EFFECTS_KEY) {
         effectFlow?.onEach { effect ->
             when (effect) {
-                is HomeContract.Effect.EmptyQuery -> Toast.makeText(context, emptyQueryMsg, Toast.LENGTH_SHORT).show()
-                is HomeContract.Effect.Navigation.ToDetail -> onNavigationRequested(effect)
+                is Effect.EmptyQuery -> Toast.makeText(context, emptyQueryMsg, Toast.LENGTH_SHORT).show()
+                is Effect.Navigation.ToDetail -> onNavigationRequested(effect)
             }
         }?.collect()
     }
@@ -143,19 +146,19 @@ fun HomeScreen(
             shoppingItems = shoppingItems,
             recentQueriesItems = remember(recentQueriesItems) { recentQueriesItems.toImmutableList() },
             favoriteItems = remember(favoriteItems) { favoriteItems.toImmutableList() },
-            onRecentQueryClick = { onEventSent(HomeContract.Event.RecentQueryClick(it)) },
-            onPriceAlarmActive = { onEventSent(HomeContract.Event.AlarmActive(it)) },
-            onQueryChanged = { onEventSent(HomeContract.Event.QueryChange(it)) },
-            onSearchClick = { onEventSent(HomeContract.Event.SearchClick) },
-            onAddFavoriteClick = { onEventSent(HomeContract.Event.AddFavorite(it)) },
-            onDeleteFavoriteClick = { onEventSent(HomeContract.Event.DeleteFavorite(it)) },
-            onItemClick = { onEventSent(HomeContract.Event.ItemClick(it)) },
+            onRecentQueryClick = { onEventSent(Event.RecentQueryClick(it)) },
+            onPriceAlarmActive = { onEventSent(Event.AlarmActive(it)) },
+            onQueryChanged = { onEventSent(Event.QueryChange(it)) },
+            onSearchClick = { onEventSent(Event.SearchClick) },
+            onAddFavoriteClick = { onEventSent(Event.AddFavorite(it)) },
+            onDeleteFavoriteClick = { onEventSent(Event.DeleteFavorite(it)) },
+            onItemClick = { onEventSent(Event.ItemClick(it)) },
             onPageChanged = { index ->
                 coroutineScope.launch {
                     pagerState.scrollToPage(index)
                 }
             },
-            onRetryButtonClick = { onEventSent(HomeContract.Event.Retry) },
+            onRetryButtonClick = { onEventSent(Event.Retry) },
         )
     }
 }
@@ -823,7 +826,7 @@ private fun HomeScreenPreview() {
             modifier = Modifier
                 .fillMaxSize()
                 .background(white),
-            state = HomeContract.State(
+            state = State(
                 changedQuery = MutableStateFlow(""),
                 priceAlarmActivated = MutableStateFlow(true),
                 shoppingItems = MutableStateFlow(PagingData.empty()),
