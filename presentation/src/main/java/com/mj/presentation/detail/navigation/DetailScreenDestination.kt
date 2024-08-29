@@ -3,6 +3,7 @@ package com.mj.presentation.detail.navigation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mj.core.theme.white
@@ -17,8 +18,9 @@ fun DetailScreenDestination(
     onOpenLink: (String) -> Unit,
     onBack: () -> Unit,
 ) {
-
-    viewModel.configure(productId)
+    LaunchedEffect(productId) {
+        viewModel.configure(productId)
+    }
 
     DetailScreen(
         modifier = Modifier
