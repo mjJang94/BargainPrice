@@ -68,6 +68,7 @@ class MainActivity : ComponentActivity(), HoistingEventCallback {
                     }
                 }
         }
+
         setContent {
             BargainPriceTheme {
                 AppNavigation(

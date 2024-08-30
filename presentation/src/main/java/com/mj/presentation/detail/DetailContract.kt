@@ -15,6 +15,8 @@ class DetailContract {
 
     data class State(
         val shoppingInfo: StateFlow<Shopping?>,
+        val recordPrices: StateFlow<List<Long>>,
+        val recordTimes: StateFlow<List<Long>>,
     ) : ViewState
 
     sealed class Effect: ViewSideEffect {

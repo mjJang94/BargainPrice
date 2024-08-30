@@ -12,3 +12,19 @@ fun Calendar.startOfNextDay() = this.apply {
     set(Calendar.SECOND, 0)
     set(Calendar.MILLISECOND, 0)
 }
+
+fun Calendar.lastWeek() = this.apply {
+    add(Calendar.DAY_OF_YEAR, -7)
+    set(Calendar.HOUR_OF_DAY, 0)
+    set(Calendar.MINUTE, 0)
+    set(Calendar.SECOND, 0)
+    set(Calendar.MILLISECOND, 0)
+}
+
+fun Calendar.lastMonth() = this.apply {
+    add(Calendar.MONTH, -1)
+    set(Calendar.HOUR_OF_DAY, 0)
+    set(Calendar.MINUTE, 0)
+    set(Calendar.SECOND, 0)
+    set(Calendar.MILLISECOND, 0)
+}

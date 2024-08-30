@@ -5,7 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity
 class RecordPriceEntity(
-    @PrimaryKey val productId: String,
+    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val productId: String,
     val lowestPrice: String,
     val highestPrice: String,
     val timeStamp: Long,

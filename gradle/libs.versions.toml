@@ -18,7 +18,6 @@ androidx-paging = "3.3.2"
 androidx-lifecycle = "2.8.4"
 androidx-datastore = "1.1.1"
 
-
 kotlinx-collections = "0.3.5"
 parcelize = "2.0.0"
 hilt = "2.51.1"
@@ -27,6 +26,7 @@ retrofit = "2.11.0"
 interceptor = "4.12.0"
 glide = "5.0.0-rc01"
 glide-compose = "1.0.0-beta01"
+vico = "2.0.0-alpha.28"
 gson = "2.10.1"
 room = "2.6.1"
 timber = "5.0.1"
@@ -81,6 +81,12 @@ timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "tim
 glide = { group = "com.github.bumptech.glide", name = "glide", version.ref = "glide" }
 glide-ksp = { group = "com.github.bumptech.glide", name = "ksp", version.ref = "glide" }
 glide-compose = { group = "com.github.bumptech.glide", name = "compose", version.ref = "glide-compose" }
+vico-compose = { group = "com.patrykandpatrick.vico", name = "compose", version.ref = "vico" }
+vico-compose-m2 = { group = "com.patrykandpatrick.vico", name = "compose-m2", version.ref = "vico" }
+vico-compose-m3 = { group = "com.patrykandpatrick.vico", name = "compose-m3", version.ref = "vico" }
+vico-core = { group = "com.patrykandpatrick.vico", name = "core", version.ref = "vico" }
+vico-views = { group = "com.patrykandpatrick.vico", name = "views", version.ref = "vico" }
+
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

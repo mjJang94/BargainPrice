@@ -21,6 +21,7 @@ val green_A700 = Color(0xFF00C853)
 val black = Color(0xFF000000)
 val white = Color(0xFFFFFFFF)
 val gray = Color(0xFF3F3F3F)
+val gray_light= Color(0xFFF0F4F7)
 val transparent = Color(0x00FFFFFF)
 
 

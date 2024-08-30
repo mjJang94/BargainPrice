@@ -61,6 +61,12 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.timber)
 
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m2)
+    implementation(libs.vico.compose.m3)
+    implementation(libs.vico.core)
+    implementation(libs.vico.views)
+
     implementation(libs.glide)
     ksp(libs.glide.ksp)
     implementation(libs.glide.compose)

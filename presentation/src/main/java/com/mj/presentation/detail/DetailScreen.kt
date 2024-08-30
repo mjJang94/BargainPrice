@@ -1,4 +1,4 @@
-@file:OptIn(ExperimentalGlideComposeApi::class)
+@file:OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
 
 package com.mj.presentation.detail
 
@@ -13,30 +13,41 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.core.base.SIDE_EFFECTS_KEY
+import com.mj.core.common.compose.Chart7
 import com.mj.core.common.compose.ImmutableGlideImage
+import com.mj.core.common.compose.Toolbar
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
 import com.mj.core.theme.black
+import com.mj.core.theme.gray_light
 import com.mj.core.theme.green_500
 import com.mj.core.theme.green_700
 import com.mj.core.theme.white
 import com.mj.core.toPriceFormat
 import com.mj.domain.model.Shopping
 import com.mj.presentation.R
-import com.mj.presentation.detail.DetailContract.*
+import com.mj.presentation.detail.DetailContract.Effect
+import com.mj.presentation.detail.DetailContract.Event
+import com.mj.presentation.detail.DetailContract.State
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -52,6 +63,8 @@ fun DetailScreen(
 ) {
 
     val shoppingInfo by state.shoppingInfo.collectAsStateWithLifecycle()
+    val recordPrices by state.recordPrices.collectAsStateWithLifecycle()
+    val recordTimes by state.recordTimes.collectAsStateWithLifecycle()
 
     LaunchedEffect(SIDE_EFFECTS_KEY) {
         effectFlow?.onEach { effect ->
@@ -59,49 +72,97 @@ fun DetailScreen(
         }?.collect()
     }
 
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-    ) {
+    Column(modifier = modifier) {
+        Toolbar(
+            modifier = Modifier.fillMaxWidth(),
+            titleText = stringResource(id = R.string.detail_title),
+            navigationImage = Icons.AutoMirrored.Filled.ArrowBack,
+            navigationAction = { onEventSend(Event.Back) }
+        )
+
         DetailContent(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f),
             shoppingInfo = shoppingInfo,
-            onClickMall = { link -> onEventSend(Event.MallClick(link))}
+            recordPrices = recordPrices,
+            recordTimes = recordTimes,
+            onClickMall = { link -> onEventSend(Event.MallClick(link)) }
         )
     }
 }
 
 @Composable
 private fun DetailContent(
+    modifier: Modifier,
     shoppingInfo: Shopping?,
+    recordPrices: List<Long>,
+    recordTimes: List<Long>,
     onClickMall: (String) -> Unit,
-
 ) {
-    if (shoppingInfo == null) {
-        LoadFail()
-    } else {
-        FavoriteProduct(
-            info = shoppingInfo,
-            onClickMall = onClickMall,
-        )
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        if (shoppingInfo == null) {
+            LoadFail()
+        } else {
+            ProductDetails(
+                shoppingInfo = shoppingInfo,
+                recordPrices = recordPrices,
+                recordTimes = recordTimes,
+                onClickMall = onClickMall,
+            )
+        }
     }
 }
 
 @Composable
 private fun LoadFail() {
-    Text(text = stringResource(id = R.string.detail_shopping_info_load_failure))
+    Text(
+        text = stringResource(id = R.string.detail_shopping_info_load_failure),
+        textAlign = TextAlign.Center,
+    )
 }
 
 @Composable
-private fun FavoriteProduct(
-    info: Shopping,
+private fun ProductDetails(
+    shoppingInfo: Shopping,
+    recordPrices: List<Long>,
+    recordTimes: List<Long>,
     onClickMall: (String) -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(10.dp),
+            .background(gray_light),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        FavoriteProductPanel(
+            info = shoppingInfo,
+            onClickMall = onClickMall,
+        )
+
+        PriceChanges(
+            records = recordPrices,
+            times = recordTimes,
+        )
+    }
+}
+
+@Composable
+private fun FavoriteProductPanel(
+    info: Shopping,
+    onClickMall: (String) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .background(white)
+            .padding(start = 10.dp, end = 10.dp, bottom = 15.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
+
         //이미지
         ImmutableGlideImage(
             modifier = Modifier
@@ -159,6 +220,25 @@ private fun FavoriteProduct(
 }
 
 @Composable
+private fun PriceChanges(
+    records: List<Long>,
+    times: List<Long>,
+) {
+    Column(
+        modifier = Modifier
+            .background(white)
+            .padding(horizontal = 10.dp, vertical = 15.dp),
+        verticalArrangement = Arrangement.spacedBy(5.dp)
+    ) {
+        Chart7(
+            modifier = Modifier.wrapContentSize(),
+            prices = records,
+            times = times,
+        )
+    }
+}
+
+@Composable
 private fun PriceLabel(
     isHighest: Boolean,
     label: String,
@@ -176,7 +256,7 @@ private fun PriceLabel(
             Spacer(modifier = Modifier.width(5.dp))
 
             Text(
-                text = price.toPriceFormat()?.let { it + stringResource(id = R.string.price_won) } ?: stringResource(id = R.string.unknown_price),
+                text = price.toPriceFormat() ?: stringResource(id = R.string.unknown_price),
                 style = Typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = green_700
@@ -194,7 +274,9 @@ private fun DetailScreenPreview() {
                 .fillMaxSize()
                 .background(white),
             state = State(
-                shoppingInfo = MutableStateFlow(null)
+                shoppingInfo = MutableStateFlow(null),
+                recordPrices = MutableStateFlow(emptyList()),
+                recordTimes = MutableStateFlow(emptyList()),
             ),
             effectFlow = null,
             onEventSend = {},

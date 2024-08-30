@@ -14,7 +14,6 @@
     <string name="highest_price">최고가</string>
     <string name="prev_highest_price">어제 최고가</string>
     <string name="refresh_fail">갱신 실패</string>
-    <string name="price_won">원</string>
     <string name="mall_name">쇼핑몰 :</string>
     <string name="maker">제조사 :</string>
     <string name="brand">브랜드 :</string>
@@ -22,5 +21,6 @@
     <string name="unknown">정보 미제공</string>
     <string name="unknown_price">가격정보 미제공</string>
 
+    <string name="detail_title">상품 상세정보</string>
     <string name="detail_shopping_info_load_failure">상품 상세페이지를 불러오지 못했어요</string>
 </resources>

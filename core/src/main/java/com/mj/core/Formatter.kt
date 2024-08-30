@@ -19,6 +19,8 @@ private val defaultFormatter =
 
 val Long.clock: Clock get() = EpochMilliClock(this)
 
+val priceDecimalFormat = DecimalFormat("#,### 원")
+
 val Long.localDateTime: LocalDateTime get() =
     clock.run { LocalDateTime.ofInstant(instant(), zone) }
 
@@ -38,4 +40,4 @@ fun String.toDateTimeFormatter(locale: Locale = Locale.getDefault()): DateTimeFo
     DateTimeFormatter.ofPattern(this, locale)
 
 fun String.toPriceFormat() : String? =
-    runCatching { DecimalFormat("#,###").format(this.toInt()) }.getOrNull()
+    runCatching { priceDecimalFormat.format(this.toInt()) }.getOrNull()

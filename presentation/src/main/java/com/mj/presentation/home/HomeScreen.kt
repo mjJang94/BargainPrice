@@ -662,7 +662,7 @@ private fun PrevShoppingPrice(
                 style = Typography.bodyMedium,
             )
             Text(
-                text = price.toPriceFormat()?.let { it + stringResource(id = R.string.price_won) } ?: stringResource(id = R.string.unknown_price),
+                text = price.toPriceFormat() ?: stringResource(id = R.string.unknown_price),
                 style = Typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = green_700
@@ -689,7 +689,7 @@ private fun PriceLabel(
             Spacer(modifier = Modifier.width(5.dp))
 
             Text(
-                text = price.toPriceFormat()?.let { it + stringResource(id = R.string.price_won) } ?: stringResource(id = R.string.unknown_price),
+                text = price.toPriceFormat() ?: stringResource(id = R.string.unknown_price),
                 style = Typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
                 color = when (isHighest) {
