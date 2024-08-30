@@ -47,6 +47,9 @@ class DataRepositoryImpl(
     override suspend fun insertRecordPriceItem(recordPrice: RecordPrice) =
         dataSource.insertRecordPriceItem(recordPrice.translate())
 
+    override suspend fun deleteRecordPriceItem(productId: String) =
+        dataSource.deleteRecordPriceItem(productId)
+
     override fun getAlarmActive(): Flow<Boolean> =
         dataSource.getAlarmActiveFlow()
 

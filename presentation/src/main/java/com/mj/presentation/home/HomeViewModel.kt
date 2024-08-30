@@ -49,12 +49,15 @@ class HomeViewModel @Inject constructor(
         when (event) {
             is Event.QueryChange -> queryChange(event.query)
             is Event.SearchClick -> getShoppingItems()
-            is Event.RecentQueryClick -> queryChange(event.query)
             is Event.Retry -> getShoppingItems()
             is Event.AlarmActive -> setAlarmActive(event.active)
-            is Event.AddFavorite -> addFavoriteItem(event.item)
             is Event.DeleteFavorite -> deleteFavoriteItem(event.id)
             is Event.ItemClick -> setEffect { Effect.Navigation.ToDetail(event.id) }
+            is Event.AddFavorite -> addFavoriteItem(event.item)
+            is Event.RecentQueryClick -> {
+                queryChange(event.query)
+                getShoppingItems()
+            }
         }
     }
 
@@ -127,7 +130,12 @@ class HomeViewModel @Inject constructor(
 
     private fun deleteFavoriteItem(productId: String) {
         viewModelScope.launch {
+            Timber.d("productId = $productId")
             combinedShoppingUseCases.deleteFavoriteShoppingData(
+                dispatcher = Dispatchers.IO,
+                param = productId
+            )
+            combinedShoppingUseCases.deleteRecordPriceUseCase(
                 dispatcher = Dispatchers.IO,
                 param = productId
             )

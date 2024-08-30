@@ -1,10 +1,11 @@
-@file:OptIn(ExperimentalGlideComposeApi::class, ExperimentalMaterial3Api::class)
+@file:OptIn(ExperimentalGlideComposeApi::class)
 
 package com.mj.presentation.detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,9 +15,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,13 +35,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.core.base.SIDE_EFFECTS_KEY
-import com.mj.core.common.compose.Chart7
 import com.mj.core.common.compose.ImmutableGlideImage
+import com.mj.core.common.compose.LineChart
 import com.mj.core.common.compose.Toolbar
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
 import com.mj.core.theme.black
 import com.mj.core.theme.gray_light
+import com.mj.core.theme.green_200
+import com.mj.core.theme.green_50
 import com.mj.core.theme.green_500
 import com.mj.core.theme.green_700
 import com.mj.core.theme.white
@@ -64,7 +69,6 @@ fun DetailScreen(
 
     val shoppingInfo by state.shoppingInfo.collectAsStateWithLifecycle()
     val recordPrices by state.recordPrices.collectAsStateWithLifecycle()
-    val recordTimes by state.recordTimes.collectAsStateWithLifecycle()
 
     LaunchedEffect(SIDE_EFFECTS_KEY) {
         effectFlow?.onEach { effect ->
@@ -86,7 +90,6 @@ fun DetailScreen(
                 .weight(1f),
             shoppingInfo = shoppingInfo,
             recordPrices = recordPrices,
-            recordTimes = recordTimes,
             onClickMall = { link -> onEventSend(Event.MallClick(link)) }
         )
     }
@@ -97,7 +100,6 @@ private fun DetailContent(
     modifier: Modifier,
     shoppingInfo: Shopping?,
     recordPrices: List<Long>,
-    recordTimes: List<Long>,
     onClickMall: (String) -> Unit,
 ) {
     Column(
@@ -111,7 +113,6 @@ private fun DetailContent(
             ProductDetails(
                 shoppingInfo = shoppingInfo,
                 recordPrices = recordPrices,
-                recordTimes = recordTimes,
                 onClickMall = onClickMall,
             )
         }
@@ -130,7 +131,6 @@ private fun LoadFail() {
 private fun ProductDetails(
     shoppingInfo: Shopping,
     recordPrices: List<Long>,
-    recordTimes: List<Long>,
     onClickMall: (String) -> Unit,
 ) {
     Column(
@@ -144,9 +144,8 @@ private fun ProductDetails(
             onClickMall = onClickMall,
         )
 
-        PriceChanges(
+        PriceChangesPanel(
             records = recordPrices,
-            times = recordTimes,
         )
     }
 }
@@ -220,21 +219,44 @@ private fun FavoriteProductPanel(
 }
 
 @Composable
-private fun PriceChanges(
+private fun PriceChangesPanel(
     records: List<Long>,
-    times: List<Long>,
 ) {
     Column(
         modifier = Modifier
+            .fillMaxWidth()
             .background(white)
             .padding(horizontal = 10.dp, vertical = 15.dp),
         verticalArrangement = Arrangement.spacedBy(5.dp)
     ) {
-        Chart7(
-            modifier = Modifier.wrapContentSize(),
-            prices = records,
-            times = times,
+
+        Text(
+            text = "가격 변동",
+            style = Typography.titleLarge,
         )
+
+        Box(
+            modifier = Modifier.background(color = green_50, shape = RoundedCornerShape(8.dp)),
+            contentAlignment = Alignment.Center,
+        ) {
+            if (records.isEmpty()) {
+                Text(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center)
+                        .padding(all = 10.dp),
+                    text = "아직 가격 정보가 없어요 😭",
+                    textAlign = TextAlign.Center,
+                )
+            } else {
+                LineChart(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .padding(10.dp),
+                    numbers = records,
+                )
+            }
+        }
     }
 }
 
@@ -276,7 +298,6 @@ private fun DetailScreenPreview() {
             state = State(
                 shoppingInfo = MutableStateFlow(null),
                 recordPrices = MutableStateFlow(emptyList()),
-                recordTimes = MutableStateFlow(emptyList()),
             ),
             effectFlow = null,
             onEventSend = {},

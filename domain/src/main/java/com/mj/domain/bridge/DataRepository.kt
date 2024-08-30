@@ -16,6 +16,7 @@ interface DataRepository {
 
     fun recordPriceFlow(productId: String, startTime: Long, endTime: Long): Flow<List<RecordPrice>>
     suspend fun insertRecordPriceItem(recordPrice: RecordPrice)
+    suspend fun deleteRecordPriceItem(productId: String)
 
     fun getAlarmActive(): Flow<Boolean>
     suspend fun setAlarmActive(active: Boolean)

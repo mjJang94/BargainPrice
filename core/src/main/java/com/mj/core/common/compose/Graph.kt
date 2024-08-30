@@ -12,7 +12,8 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.dp
 import com.mj.core.priceDecimalFormat
 import com.mj.core.theme.green_400
-import com.mj.core.timeFormatDebugDate
+import com.mj.core.theme.green_500
+import com.mj.core.theme.white
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisGuidelineComponent
 import com.patrykandpatrick.vico.compose.cartesian.axis.rememberAxisLabelComponent
@@ -54,23 +55,22 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
-fun Chart7(modifier: Modifier, times: List<Long>, prices: List<Long>) {
+fun LineChart(modifier: Modifier, numbers: List<Number>) {
     val modelProducer = remember { CartesianChartModelProducer() }
     LaunchedEffect(Unit) {
         withContext(Dispatchers.Default) {
             modelProducer.runTransaction {
                 lineSeries {
-                    series(x = times, y = prices)
+                    series(y = numbers)
                 }
             }
         }
     }
-
-    ComposeChart7(modifier, modelProducer)
+    LineChartContent(modifier, modelProducer)
 }
 
 @Composable
-private fun ComposeChart7(modifier: Modifier, modelProducer: CartesianChartModelProducer) {
+private fun LineChartContent(modifier: Modifier, modelProducer: CartesianChartModelProducer) {
     CartesianChartHost(
         modifier = modifier,
         chart =
@@ -102,9 +102,9 @@ private fun ComposeChart7(modifier: Modifier, modelProducer: CartesianChartModel
 @Composable
 private fun rememberStartAxisLabel() =
     rememberAxisLabelComponent(
-        color = Color.Black,
+        color = white,
         padding = Dimensions.of(4.dp, 2.dp),
-        background = rememberShapeComponent(Color(0xfffab94d), Shape.rounded(4.dp)),
+        background = rememberShapeComponent(green_500, Shape.rounded(4.dp)),
     )
 
 @Composable
@@ -205,8 +205,12 @@ private const val LABEL_BACKGROUND_SHADOW_DY_DP = 2f
 private const val CLIPPING_FREE_SHADOW_RADIUS_MULTIPLIER = 1.4f
 
 private val startValueFormatter = CartesianValueFormatter.decimal(priceDecimalFormat)
-private val bottomValueFormatter = CartesianValueFormatter { value, _, _ ->
-    value.toLong().timeFormatDebugDate()
+private val bottomValueFormatter = CartesianValueFormatter { value, values, _ ->
+    when (val day = (values.maxX.toInt() - value.toInt())) {
+        0 -> "오늘"
+        1 -> "어제"
+        else -> "${day}일 전"
+    }
 }
 private val markerValueFormatter = DefaultCartesianMarkerValueFormatter(
     decimalFormat = (priceDecimalFormat)

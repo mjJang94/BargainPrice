@@ -18,6 +18,7 @@ interface DataSource {
 
     fun recordPriceFlow(productId: String, startTime: Long, endTime: Long): Flow<List<RecordPriceEntity>>
     suspend fun insertRecordPriceItem(recordPriceEntity: RecordPriceEntity)
+    suspend fun deleteRecordPriceItem(productId: String)
 
     fun getAlarmActiveFlow(): Flow<Boolean>
     suspend fun setAlarmActive(active: Boolean)

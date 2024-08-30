@@ -18,10 +18,12 @@ fun DetailScreenDestination(
     onOpenLink: (String) -> Unit,
     onBack: () -> Unit,
 ) {
+
     LaunchedEffect(productId) {
         viewModel.configure(productId)
     }
 
+    //https://issuetracker.google.com/issues/225987040?pli=1
     DetailScreen(
         modifier = Modifier
             .fillMaxSize()
@@ -30,10 +32,11 @@ fun DetailScreenDestination(
         effectFlow = viewModel.effect,
         onEventSend = { event -> viewModel.setEvent(event) },
         onNavigationRequested = { effect ->
-            when(effect) {
+            when (effect) {
                 is DetailContract.Effect.Navigation.Back -> onBack()
                 is DetailContract.Effect.Navigation.OpenLink -> onOpenLink(effect.link)
             }
         }
     )
+
 }

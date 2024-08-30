@@ -42,6 +42,9 @@ class DataSourceImpl @Inject constructor(
     override suspend fun insertRecordPriceItem(recordPriceEntity: RecordPriceEntity) =
         recordPriceDao.insert(recordPriceEntity)
 
+    override suspend fun deleteRecordPriceItem(productId: String) =
+        recordPriceDao.deleteById(productId)
+
     override fun getAlarmActiveFlow(): Flow<Boolean> =
         store.priceCheckAlarmActiveFlow
 

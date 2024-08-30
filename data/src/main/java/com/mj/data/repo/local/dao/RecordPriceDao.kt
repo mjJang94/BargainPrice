@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.mj.data.repo.local.entity.RecordPriceEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -17,6 +18,10 @@ interface RecordPriceDao {
         endTime: Long,
     ): Flow<List<RecordPriceEntity>>
 
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(recordPriceEntity: RecordPriceEntity)
+
+    @Query("DELETE FROM RecordPriceEntity WHERE productId=:productId")
+    suspend fun deleteById(productId: String)
 }

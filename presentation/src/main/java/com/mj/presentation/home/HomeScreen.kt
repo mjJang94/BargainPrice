@@ -418,6 +418,12 @@ private fun ShoppingList(
                 item = item,
                 onAddFavoriteClick = onAddFavoriteClick,
                 onDeleteFavoriteClick = onDeleteFavoriteClick,
+                onItemClick = {
+                    when (item.isFavorite) {
+                        true -> onDeleteFavoriteClick(item.productId)
+                        else -> onAddFavoriteClick(item)
+                    }
+                }
             )
         }
 

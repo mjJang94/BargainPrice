@@ -7,6 +7,7 @@ import com.mj.domain.usecase.detail.GetRecordPriceUseCase
 import com.mj.domain.usecase.detail.InsertRecordPriceUseCase
 import com.mj.domain.usecase.home.CombinedShoppingUseCases
 import com.mj.domain.usecase.home.DeleteFavoriteShoppingUseCase
+import com.mj.domain.usecase.home.DeleteRecordPriceUseCase
 import com.mj.domain.usecase.home.GetAlarmActiveUseCase
 import com.mj.domain.usecase.home.GetFavoriteShoppingListUseCase
 import com.mj.domain.usecase.home.GetRecentQueriesUseCase
@@ -39,6 +40,7 @@ object UseCaseModule {
         getRecentQueriesUseCase = GetRecentQueriesUseCase(repository),
         setRecentQueriesUseCase = SetRecentQueriesUseCase(repository),
         getRefreshTimeUseCase = GetRefreshTimeUseCase(repository),
+        deleteRecordPriceUseCase = DeleteRecordPriceUseCase(repository),
     )
 
     @Provides

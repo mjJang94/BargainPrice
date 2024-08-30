@@ -10,4 +10,5 @@ data class CombinedShoppingUseCases(
     val getRecentQueriesUseCase: GetRecentQueriesUseCase,
     val setRecentQueriesUseCase: SetRecentQueriesUseCase,
     val getRefreshTimeUseCase: GetRefreshTimeUseCase,
+    val deleteRecordPriceUseCase: DeleteRecordPriceUseCase,
 )

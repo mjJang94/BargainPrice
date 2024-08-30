@@ -27,7 +27,6 @@ class DetailViewModel @Inject constructor(
     override fun setInitialState() = State(
         shoppingInfo = MutableStateFlow(null),
         recordPrices = MutableStateFlow(emptyList()),
-        recordTimes = MutableStateFlow(emptyList()),
     )
 
     override fun handleEvents(event: Event) {
@@ -40,11 +39,8 @@ class DetailViewModel @Inject constructor(
     fun configure(productId: String) {
         viewModelScope.launch {
             val shoppingItem = async { getShoppingItem(productId) }.await()
-            val (prices, times) = async {
-                val recordItems = getRecordPrices(productId)
-                recordItems.map { it.lowestPrice.toLong() } to recordItems.map { it.timeStamp }
-            }.await()
-            setState { copy(shoppingInfo = MutableStateFlow(shoppingItem), recordPrices = MutableStateFlow(prices), recordTimes = MutableStateFlow(times)) }
+            val recordPrices = async { getRecordPrices(productId).map { it.lowestPrice.toLong() } }.await()
+            setState { copy(shoppingInfo = MutableStateFlow(shoppingItem), recordPrices = MutableStateFlow(recordPrices)) }
         }
     }
 
