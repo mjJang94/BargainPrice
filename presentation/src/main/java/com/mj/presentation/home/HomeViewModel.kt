@@ -8,7 +8,9 @@ import com.mj.core.base.BaseViewModel
 import com.mj.core.common.compose.removeHtmlTag
 import com.mj.domain.model.Shopping
 import com.mj.domain.usecase.home.CombinedShoppingUseCases
-import com.mj.presentation.home.HomeContract.*
+import com.mj.presentation.home.HomeContract.Effect
+import com.mj.presentation.home.HomeContract.Event
+import com.mj.presentation.home.HomeContract.State
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,6 +54,7 @@ class HomeViewModel @Inject constructor(
             is Event.Retry -> getShoppingItems()
             is Event.AlarmActive -> setAlarmActive(event.active)
             is Event.DeleteFavorite -> deleteFavoriteItem(event.id)
+            is Event.DeleteQuery -> deleteQuery(event.query)
             is Event.ItemClick -> setEffect { Effect.Navigation.ToDetail(event.id) }
             is Event.AddFavorite -> addFavoriteItem(event.item)
             is Event.RecentQueryClick -> {
@@ -139,6 +142,18 @@ class HomeViewModel @Inject constructor(
                 dispatcher = Dispatchers.IO,
                 param = productId
             )
+        }
+    }
+
+    private fun deleteQuery(query: String) {
+        viewModelScope.launch {
+            combinedShoppingUseCases.getRecentQueriesUseCase().firstOrNull()?.let {
+                val tempQueries = it.toMutableSet().apply { remove(query) }
+                combinedShoppingUseCases.setRecentQueriesUseCase(
+                    dispatcher = Dispatchers.IO,
+                    param = tempQueries,
+                )
+            }
         }
     }
 

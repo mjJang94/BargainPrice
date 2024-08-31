@@ -159,6 +159,7 @@ fun HomeScreen(
                 }
             },
             onRetryButtonClick = { onEventSent(Event.Retry) },
+            onDeleteQuery = { onEventSent(Event.DeleteQuery(it))}
         )
     }
 }
@@ -182,6 +183,7 @@ private fun HomeContent(
     onItemClick: (String) -> Unit,
     onPageChanged: (Int) -> Unit,
     onRetryButtonClick: () -> Unit,
+    onDeleteQuery: (String) -> Unit,
 ) {
 
     Column {
@@ -206,6 +208,7 @@ private fun HomeContent(
                         onAddFavoriteClick = onAddFavoriteClick,
                         onDeleteFavoriteClick = onDeleteFavoriteClick,
                         onRetryButtonClick = onRetryButtonClick,
+                        onDeleteQuery = onDeleteQuery,
                     )
                 }
 
@@ -261,6 +264,7 @@ private fun ShoppingListPage(
     onAddFavoriteClick: (ShoppingItem) -> Unit,
     onDeleteFavoriteClick: (String) -> Unit,
     onRetryButtonClick: () -> Unit,
+    onDeleteQuery: (String) -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         SearchBox(
@@ -273,6 +277,7 @@ private fun ShoppingListPage(
         RecentQueriesList(
             recentQueriesItems = recentQueriesItems,
             onRecentQueryClick = onRecentQueryClick,
+            onDeleteQuery = onDeleteQuery
         )
 
         Box(
@@ -363,10 +368,10 @@ private fun SearchBox(
 private fun RecentQueriesList(
     recentQueriesItems: ImmutableList<String>,
     onRecentQueryClick: (String) -> Unit,
+    onDeleteQuery: (String) -> Unit,
 ) {
     LazyRow(
         modifier = Modifier.fillMaxWidth(),
-        contentPadding = PaddingValues(horizontal = 10.dp, vertical = 5.dp),
         horizontalArrangement = Arrangement.spacedBy(5.dp),
     ) {
         items(
@@ -375,20 +380,31 @@ private fun RecentQueriesList(
         ) { index ->
             val query = recentQueriesItems[index]
 
-            TextButton(
+            Box(
                 modifier = Modifier.wrapContentSize(),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonColors(
-                    contentColor = green_500,
-                    containerColor = green_50,
-                    disabledContentColor = green_500,
-                    disabledContainerColor = green_50,
-                ),
-                onClick = { onRecentQueryClick(query) },
+                contentAlignment = Alignment.TopEnd,
             ) {
-                Text(
-                    text = query,
-                    style = Typography.bodyMedium,
+                TextButton(
+                    modifier = Modifier.padding(horizontal = 5.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonColors(
+                        contentColor = green_500,
+                        containerColor = green_50,
+                        disabledContentColor = green_500,
+                        disabledContainerColor = green_50,
+                    ),
+                    onClick = { onRecentQueryClick(query) },
+                ) {
+                    Text(
+                        text = query,
+                        style = Typography.bodyMedium,
+                    )
+                }
+
+                Image(
+                    modifier = Modifier.clickable { onDeleteQuery(query) },
+                    painter = painterResource(id = R.drawable.baseline_cancel_24),
+                    contentDescription = "",
                 )
             }
         }

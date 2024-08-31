@@ -17,6 +17,7 @@ class HomeContract {
         data class AlarmActive(val active: Boolean) : Event()
         data class AddFavorite(val item: ShoppingItem) : Event()
         data class DeleteFavorite(val id: String) : Event()
+        data class DeleteQuery(val query: String) : Event()
         data class ItemClick(val id: String) : Event()
     }
 

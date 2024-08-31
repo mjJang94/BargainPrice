@@ -15,11 +15,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +42,6 @@ import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
 import com.mj.core.theme.black
 import com.mj.core.theme.gray_light
-import com.mj.core.theme.green_200
 import com.mj.core.theme.green_50
 import com.mj.core.theme.green_500
 import com.mj.core.theme.green_700
@@ -66,7 +65,7 @@ fun DetailScreen(
     onEventSend: (event: Event) -> Unit,
     onNavigationRequested: (effect: Effect) -> Unit,
 ) {
-
+    val scrollState = rememberScrollState()
     val shoppingInfo by state.shoppingInfo.collectAsStateWithLifecycle()
     val recordPrices by state.recordPrices.collectAsStateWithLifecycle()
 
@@ -76,7 +75,7 @@ fun DetailScreen(
         }?.collect()
     }
 
-    Column(modifier = modifier) {
+    Column(modifier = modifier.verticalScroll(scrollState)) {
         Toolbar(
             modifier = Modifier.fillMaxWidth(),
             titleText = stringResource(id = R.string.detail_title),
@@ -231,12 +230,13 @@ private fun PriceChangesPanel(
     ) {
 
         Text(
+            modifier = Modifier.padding(bottom = 10.dp),
             text = "가격 변동",
             style = Typography.titleLarge,
         )
 
         Box(
-            modifier = Modifier.background(color = green_50, shape = RoundedCornerShape(8.dp)),
+            modifier = Modifier.background(color = green_50, shape = RoundedCornerShape(10.dp)),
             contentAlignment = Alignment.Center,
         ) {
             if (records.isEmpty()) {
