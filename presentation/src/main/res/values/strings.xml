@@ -7,7 +7,8 @@
     <string name="network_error_retry_button_text">다시 불러오기</string>
     <string name="fetch_data_from_server">데이터 로드 중</string>
 
-    <string name="refresh_price_label">매일 가격 갱신 알림(자정)</string>
+    <string name="refresh_price_label">가격 갱신 알림</string>
+    <string name="refresh_price_desc">매일 자정마다 관심상품 가격을 갱신하고 알림을 받습니다.</string>
     <string name="refresh_last_time">갱신 시간 :</string>
     <string name="lowest_price">최저가</string>
     <string name="prev_lowest_price">어제 최저가</string>

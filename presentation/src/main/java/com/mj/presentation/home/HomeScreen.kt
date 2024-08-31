@@ -77,6 +77,8 @@ import com.mj.core.common.compose.ImmutableGlideImage
 import com.mj.core.common.compose.appendCategoryData
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
+import com.mj.core.theme.black
+import com.mj.core.theme.gray
 import com.mj.core.theme.green_100
 import com.mj.core.theme.green_200
 import com.mj.core.theme.green_300
@@ -740,13 +742,22 @@ private fun PriceAlarmSwitch(
         Column {
             Text(
                 text = stringResource(id = R.string.refresh_price_label),
-                style = Typography.bodyMedium,
+                style = Typography.titleMedium,
+                color = black
+            )
+
+            Text(
+                modifier = Modifier.padding(top = 5.dp),
+                text = stringResource(id = R.string.refresh_price_desc),
+                style = Typography.bodySmall,
+                color = gray,
             )
 
             if (currentRefreshTime > 0L) {
                 Text(
                     text = "${stringResource(id = R.string.refresh_last_time)} ${currentRefreshTime.timeFormatDebugFull()}",
                     style = Typography.bodySmall,
+                    color = green_500,
                 )
             }
         }
