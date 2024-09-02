@@ -30,30 +30,7 @@ class PriceCheckManager @Inject constructor(
         result: () -> Unit,
     ) {
         runCatching {
-            val cachedFavorite = dataSource.getAllShoppingItems()
-            cachedFavorite.forEach { cache ->
-                val refreshItem = dataSource.refreshFavoriteList(
-                    query = cache.title,
-                    page = 1,
-                    pageSize = 10,
-                ).items.firstOrNull {
-                    it.productId == cache.productId
-                }
-
-                val shoppingEntity = when (refreshItem) {
-                    null -> cache.copy(isRefreshFail = true)
-                    else -> refreshItem.formalize(cache)
-                }
-
-                val recordPriceEntity = when (refreshItem) {
-                    null -> cache.translate()
-                    else -> refreshItem.formalize()
-                }
-                Timber.d("new entity = $shoppingEntity")
-                dataSource.insertShoppingItem(shoppingEntity)
-                dataSource.insertRecordPriceItem(recordPriceEntity)
-            }
-            setAlarmSchedule(interactIntent)
+            refresh(interactIntent)
         }.onSuccess {
             setRefreshAlarm(System.currentTimeMillis())
             fireSuccessNotification(context, actionIntent)
@@ -64,6 +41,33 @@ class PriceCheckManager @Inject constructor(
             fireFailureNotification(context, tr)
             result()
         }
+    }
+
+    private suspend fun refresh(intent: Intent) {
+        val cachedFavorite = dataSource.getAllShoppingItems()
+        cachedFavorite.forEach { cache ->
+            val refreshItem = dataSource.refreshFavoriteList(
+                query = cache.title,
+                page = 1,
+                pageSize = 10,
+            ).items.firstOrNull {
+                it.productId == cache.productId
+            }
+
+            val shoppingEntity = when (refreshItem) {
+                null -> cache.copy(isRefreshFail = true)
+                else -> refreshItem.formalize(cache)
+            }
+
+            val recordPriceEntity = when (refreshItem) {
+                null -> cache.translate()
+                else -> refreshItem.formalize()
+            }
+            Timber.d("new entity = $shoppingEntity")
+            dataSource.insertShoppingItem(shoppingEntity)
+            dataSource.insertRecordPriceItem(recordPriceEntity)
+        }
+        setAlarmSchedule(intent)
     }
 
     private fun setAlarmSchedule(interactIntent: Intent) {
