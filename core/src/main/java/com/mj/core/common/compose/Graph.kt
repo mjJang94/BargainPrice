@@ -36,6 +36,7 @@ import com.patrykandpatrick.vico.core.cartesian.CartesianMeasuringContext
 import com.patrykandpatrick.vico.core.cartesian.HorizontalDimensions
 import com.patrykandpatrick.vico.core.cartesian.Insets
 import com.patrykandpatrick.vico.core.cartesian.axis.VerticalAxis
+import com.patrykandpatrick.vico.core.cartesian.data.AxisValueOverrider
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModel
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.cartesian.data.CartesianValueFormatter
@@ -55,7 +56,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 @Composable
-fun LineChart(modifier: Modifier, numbers: List<Number>) {
+fun LineChart(modifier: Modifier, numbers: List<Long>) {
     val modelProducer = remember { CartesianChartModelProducer() }
     LaunchedEffect(Unit) {
         withContext(Dispatchers.Default) {
@@ -66,22 +67,29 @@ fun LineChart(modifier: Modifier, numbers: List<Number>) {
             }
         }
     }
-    LineChartContent(modifier, modelProducer)
+    LineChartContent(modifier, modelProducer, numbers.minOrNull() ?: 0, numbers.maxOrNull() ?: 0)
 }
 
 @Composable
-private fun LineChartContent(modifier: Modifier, modelProducer: CartesianChartModelProducer) {
+private fun LineChartContent(modifier: Modifier, modelProducer: CartesianChartModelProducer, min: Long, max: Long) {
     CartesianChartHost(
         modifier = modifier,
         chart =
         rememberCartesianChart(
             rememberLineCartesianLayer(
-                LineCartesianLayer.LineProvider.series(
+                lineProvider = LineCartesianLayer.LineProvider.series(
                     rememberLine(
                         fill = remember { LineCartesianLayer.LineFill.single(fill(green_400)) },
                     )
-                )
-            ),
+                ),
+                axisValueOverrider = AxisValueOverrider.fixed(
+                    minY = when {
+                        min == 0L || min == max -> 0.0
+                        (0..10000L).contains((max - min)) -> (((min * 0.8) / 100).toInt() * 100).toDouble()
+                        else -> min.toDouble()
+                    },
+                    maxY = max.toDouble() * 1.2,
+                )),
             startAxis = rememberStartAxis(
                 label = rememberStartAxisLabel(),
                 valueFormatter = startValueFormatter,

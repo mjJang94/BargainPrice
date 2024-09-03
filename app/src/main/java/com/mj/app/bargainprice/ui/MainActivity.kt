@@ -44,8 +44,6 @@ class MainActivity : ComponentActivity(), HoistingEventCallback {
     lateinit var alarm: AlarmHelper
 
     companion object {
-        fun start(context: Context) =
-            context.startActivity(intent(context))
 
         fun intent(context: Context) = Intent(context, MainActivity::class.java)
     }

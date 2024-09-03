@@ -6,6 +6,7 @@ import com.mj.data.repo.local.entity.RecordPriceEntity
 import com.mj.data.repo.local.entity.ShoppingEntity
 import com.mj.data.repo.local.pref.DataStoreManager
 import com.mj.data.repo.remote.api.NaverApi
+import com.mj.data.repo.remote.data.ShoppingVo
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -15,7 +16,7 @@ class DataSourceImpl @Inject constructor(
     private val recordPriceDao: RecordPriceDao,
     private val store: DataStoreManager
 ) : DataSource {
-    override suspend fun getShoppingData(query: String, page: Int, pageSize: Int) =
+    override suspend fun getShoppingData(query: String, page: Int): ShoppingVo =
         naverApi.getShoppingData(q = query, start = page)
 
     override suspend fun refreshFavoriteList(query: String, page: Int, pageSize: Int) =

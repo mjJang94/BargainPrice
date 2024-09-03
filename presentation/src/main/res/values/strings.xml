@@ -11,10 +11,7 @@
     <string name="refresh_price_desc">매일 자정마다 관심상품 가격을 갱신하고 알림을 받습니다.</string>
     <string name="refresh_last_time">갱신 시간 :</string>
     <string name="lowest_price">최저가</string>
-    <string name="prev_lowest_price">어제 최저가</string>
     <string name="highest_price">최고가</string>
-    <string name="prev_highest_price">어제 최고가</string>
-    <string name="refresh_fail">갱신 실패</string>
     <string name="mall_name">쇼핑몰 :</string>
     <string name="maker">제조사 :</string>
     <string name="brand">브랜드 :</string>
@@ -23,5 +20,7 @@
     <string name="unknown_price">가격정보 미제공</string>
 
     <string name="detail_title">상품 상세정보</string>
+    <string name="detail_price_graph">가격 그래프</string>
+    <string name="detail_price_graph_no_data">아직 가격 정보가 없어요 😭</string>
     <string name="detail_shopping_info_load_failure">상품 상세페이지를 불러오지 못했어요</string>
 </resources>

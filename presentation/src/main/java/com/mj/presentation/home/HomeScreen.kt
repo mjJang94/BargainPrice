@@ -12,12 +12,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -78,14 +76,15 @@ import com.mj.core.common.compose.appendCategoryData
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography
 import com.mj.core.theme.black
+import com.mj.core.theme.blue
 import com.mj.core.theme.gray
 import com.mj.core.theme.green_100
 import com.mj.core.theme.green_200
 import com.mj.core.theme.green_300
 import com.mj.core.theme.green_50
 import com.mj.core.theme.green_500
-import com.mj.core.theme.green_700
 import com.mj.core.theme.green_900
+import com.mj.core.theme.red
 import com.mj.core.theme.white
 import com.mj.core.timeFormatDebugFull
 import com.mj.core.toPriceFormat
@@ -93,6 +92,7 @@ import com.mj.presentation.R
 import com.mj.presentation.home.HomeContract.Effect
 import com.mj.presentation.home.HomeContract.Event
 import com.mj.presentation.home.HomeContract.State
+import com.mj.presentation.home.HomeViewModel.PriceState
 import com.mj.presentation.home.HomeViewModel.ShoppingItem
 import com.mj.presentation.home.model.Pages
 import kotlinx.collections.immutable.ImmutableList
@@ -161,7 +161,7 @@ fun HomeScreen(
                 }
             },
             onRetryButtonClick = { onEventSent(Event.Retry) },
-            onDeleteQuery = { onEventSent(Event.DeleteQuery(it))}
+            onDeleteQuery = { onEventSent(Event.DeleteQuery(it)) }
         )
     }
 }
@@ -195,7 +195,6 @@ private fun HomeContent(
                 .weight(1f),
             state = pagerState,
             beyondBoundsPageCount = pagerState.pageCount,
-            userScrollEnabled = false,
         ) { index ->
             when (Pages.entries[index]) {
                 Pages.SEARCH -> {
@@ -586,25 +585,10 @@ private fun ShoppingListRow(
                 maxLines = 2,
             )
 
-            //최고가
-            PriceLabel(
-                isHighest = true,
-                label = stringResource(id = R.string.highest_price),
-                price = item.highestPrice,
-            )
-
             //최저가
-            PriceLabel(
-                isHighest = false,
-                label = stringResource(id = R.string.lowest_price),
+            LowestPriceLabel(
                 price = item.lowestPrice,
-            )
-
-            //어제의 최고가 혹은 최저가
-            PrevShoppingItem(
-                prevLowestPrice = item.prevLowestPrice,
-                prevHighestPrice = item.prevHighestPrice,
-                isRefreshFail = item.isRefreshFail,
+                priceState = item.priceState,
             )
 
             //판매처
@@ -639,31 +623,39 @@ private fun ShoppingListRow(
 }
 
 @Composable
-private fun PrevShoppingItem(
-    prevLowestPrice: String,
-    prevHighestPrice: String,
-    isRefreshFail: Boolean,
+private fun LowestPriceLabel(
+    price: String,
+    priceState: PriceState?,
 ) {
-    if (prevHighestPrice.isNotBlank() || prevLowestPrice.isNotBlank()) {
-        PrevShoppingPrice(
-            price = prevHighestPrice,
-            label = stringResource(id = R.string.prev_highest_price),
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        PriceLabel(
+            label = stringResource(id = R.string.lowest_price),
+            price = price,
         )
 
-        PrevShoppingPrice(
-            price = prevLowestPrice,
-            label = stringResource(id = R.string.prev_lowest_price),
-        )
-    } else {
-        if (isRefreshFail) {
-            Box(
+        val (color, difference, icon) = when (priceState) {
+            is PriceState.Increase -> Triple(red, priceState.difference, painterResource(id = R.drawable.baseline_arrow_drop_up_24))
+            is PriceState.Decrease -> Triple(blue, priceState.difference, painterResource(id = R.drawable.baseline_arrow_drop_down_24))
+            else -> return
+        }
+
+        //차이값이 기준치에 도달하지 못할 경우 걸러짐
+        if (!difference.isNullOrEmpty()) {
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Red),
-                contentAlignment = Alignment.Center,
+                    .wrapContentSize()
+                    .background(color, RoundedCornerShape(4.dp))
+                    .padding(horizontal = 2.dp, vertical = 2.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center,
             ) {
+                Image(painter = icon, contentDescription = "")
                 Text(
-                    text = stringResource(id = R.string.refresh_fail),
+                    text = "$difference",
+                    style = Typography.bodyMedium,
                     color = white,
                 )
             }
@@ -672,54 +664,22 @@ private fun PrevShoppingItem(
 }
 
 @Composable
-private fun PrevShoppingPrice(
-    price: String,
+private fun PriceLabel(
     label: String,
+    price: String,
 ) {
     if (price.isNotBlank()) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(5.dp)
-        ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
             Text(
                 text = label,
                 style = Typography.bodyMedium,
             )
-            Text(
-                text = price.toPriceFormat() ?: stringResource(id = R.string.unknown_price),
-                style = Typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
-                color = green_700
-            )
-        }
-    }
-}
-
-@Composable
-private fun PriceLabel(
-    isHighest: Boolean,
-    label: String,
-    price: String,
-) {
-    if (price.isNotBlank()) {
-        Row {
-            if (!isHighest) {
-                Text(
-                    text = label,
-                    style = Typography.bodyMedium,
-                )
-            }
-
-            Spacer(modifier = Modifier.width(5.dp))
 
             Text(
                 text = price.toPriceFormat() ?: stringResource(id = R.string.unknown_price),
                 style = Typography.bodyMedium,
                 fontWeight = FontWeight.Bold,
-                color = when (isHighest) {
-                    true -> Color.Red
-                    else -> Color.Blue
-                }
+                color = Color.Blue
             )
         }
     }

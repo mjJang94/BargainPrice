@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 
 interface DataSource {
-    suspend fun getShoppingData(query: String, page: Int, pageSize: Int = 20): ShoppingVo
+    suspend fun getShoppingData(query: String, page: Int): ShoppingVo
     suspend fun refreshFavoriteList(query: String, page: Int, pageSize: Int): ShoppingVo
 
     fun shoppingFlow(): Flow<List<ShoppingEntity>>

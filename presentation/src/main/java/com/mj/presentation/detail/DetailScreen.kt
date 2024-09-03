@@ -231,7 +231,7 @@ private fun PriceChangesPanel(
 
         Text(
             modifier = Modifier.padding(bottom = 10.dp),
-            text = "가격 변동",
+            text = stringResource(id = R.string.detail_price_graph),
             style = Typography.titleLarge,
         )
 
@@ -239,13 +239,13 @@ private fun PriceChangesPanel(
             modifier = Modifier.background(color = green_50, shape = RoundedCornerShape(10.dp)),
             contentAlignment = Alignment.Center,
         ) {
-            if (records.isEmpty()) {
+            if (records.isEmpty() || records.size == 1) {
                 Text(
                     modifier = Modifier
                         .fillMaxWidth()
                         .align(Alignment.Center)
                         .padding(all = 10.dp),
-                    text = "아직 가격 정보가 없어요 😭",
+                    text = stringResource(id = R.string.detail_price_graph_no_data),
                     textAlign = TextAlign.Center,
                 )
             } else {

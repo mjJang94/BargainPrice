@@ -6,11 +6,16 @@ import androidx.paging.cachedIn
 import androidx.paging.map
 import com.mj.core.base.BaseViewModel
 import com.mj.core.common.compose.removeHtmlTag
+import com.mj.core.ktx.calculatePercentageDifferenceOrNull
+import com.mj.core.ktx.toLongSafety
 import com.mj.domain.model.Shopping
 import com.mj.domain.usecase.home.CombinedShoppingUseCases
 import com.mj.presentation.home.HomeContract.Effect
 import com.mj.presentation.home.HomeContract.Event
 import com.mj.presentation.home.HomeContract.State
+import com.mj.presentation.home.HomeViewModel.PriceState.Decrease
+import com.mj.presentation.home.HomeViewModel.PriceState.Increase
+import com.mj.presentation.home.HomeViewModel.PriceState.None
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -70,11 +75,7 @@ class HomeViewModel @Inject constructor(
         setState { copy(changedQuery = _query) }
     }
 
-    private val _shoppingInfo: MutableStateFlow<PagingData<ShoppingItem>> = MutableStateFlow(PagingData.empty())
     private val _favoriteShoppingInfo: MutableStateFlow<List<ShoppingItem>> = MutableStateFlow(emptyList())
-    private val _alarmActive: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _recentQueries: MutableStateFlow<List<String>> = MutableStateFlow(emptyList())
-    private val _recentRefreshTime: MutableStateFlow<Long> = MutableStateFlow(0L)
 
     private fun getShoppingItems() {
         viewModelScope.launch {
@@ -88,8 +89,7 @@ class HomeViewModel @Inject constructor(
                     remote.formalize(favorite)
                 }
                 .collect {
-                    _shoppingInfo.emit(it)
-                    setState { copy(shoppingItems = _shoppingInfo) }
+                    setState { copy(shoppingItems = MutableStateFlow(it)) }
                 }
         }
     }
@@ -163,8 +163,7 @@ class HomeViewModel @Inject constructor(
                 .flowOn(Dispatchers.IO)
                 .distinctUntilChanged()
                 .collect {
-                    _alarmActive.emit(it)
-                    setState { copy(priceAlarmActivated = _alarmActive) }
+                    setState { copy(priceAlarmActivated = MutableStateFlow(it)) }
                 }
         }
     }
@@ -183,8 +182,7 @@ class HomeViewModel @Inject constructor(
             combinedShoppingUseCases.getRecentQueriesUseCase()
                 .flowOn(Dispatchers.IO)
                 .collect {
-                    _recentQueries.emit(it.toList())
-                    setState { copy(recentQueries = _recentQueries) }
+                    setState { copy(recentQueries = MutableStateFlow(it.toList())) }
                 }
         }
     }
@@ -194,8 +192,7 @@ class HomeViewModel @Inject constructor(
             combinedShoppingUseCases.getRefreshTimeUseCase()
                 .flowOn(Dispatchers.IO)
                 .collect {
-                    _recentRefreshTime.emit(it)
-                    setState { copy(refreshTime = _recentRefreshTime) }
+                    setState { copy(refreshTime = MutableStateFlow(it)) }
                 }
         }
     }
@@ -219,6 +216,7 @@ class HomeViewModel @Inject constructor(
         val category4: String,
         val isFavorite: Boolean,
         val isRefreshFail: Boolean,
+        val priceState: PriceState?,
     )
 
     private fun PagingData<Shopping>.formalize(favorite: List<ShoppingItem>): PagingData<ShoppingItem> = this.map {
@@ -241,6 +239,7 @@ class HomeViewModel @Inject constructor(
             category4 = it.category4,
             isFavorite = favorite.any { favorite -> it.productId == favorite.productId },
             isRefreshFail = false,
+            priceState = null
         )
     }
 
@@ -264,6 +263,17 @@ class HomeViewModel @Inject constructor(
             category4 = it.category4,
             isFavorite = true,
             isRefreshFail = it.isRefreshFail,
+            priceState = when {
+                (it.lowestPrice.toLongSafety() - it.prevLowestPrice.toLongSafety()) > 0L -> Increase(
+                    difference = calculatePercentageDifferenceOrNull(it.lowestPrice, it.prevLowestPrice)
+                )
+
+                (it.lowestPrice.toLongSafety() - it.prevLowestPrice.toLongSafety()) < 0L -> Decrease(
+                    difference = calculatePercentageDifferenceOrNull(it.lowestPrice, it.prevLowestPrice)
+                )
+
+                else -> None
+            }
         )
     }
 
@@ -286,4 +296,10 @@ class HomeViewModel @Inject constructor(
         category4 = category4,
         isRefreshFail = false,
     )
+
+    sealed interface PriceState {
+        data class Increase(val difference: String?) : PriceState
+        data class Decrease(val difference: String?) : PriceState
+        data object None : PriceState
+    }
 }
