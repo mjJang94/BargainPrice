@@ -7,4 +7,5 @@ plugins {
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.hilt.android) apply false
     alias(libs.plugins.parcelize) apply false
+    alias(libs.plugins.firebase) apply false
 }

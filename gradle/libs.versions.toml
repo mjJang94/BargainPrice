@@ -31,6 +31,9 @@ gson = "2.10.1"
 room = "2.6.1"
 timber = "5.0.1"
 
+firebase-plugin = "4.4.2"
+firebase-bom = "33.2.0"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
@@ -54,6 +57,12 @@ androidx-paging-runtime = { group = "androidx.paging", name = "paging-runtime", 
 androidx-paging-common_without_android_dependencies = { group = "androidx.paging", name = "paging-common", version.ref = "androidx-paging" }
 androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
 androidx-datastore = { group = "androidx.datastore", name  = "datastore-preferences", version.ref = "androidx-datastore"}
+
+# Add the dependencies for Firebase products you want to use
+# When using the BoM, don't specify versions in Firebase dependencies
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase-bom"}
+firebase-analytics-ktx = { group = "com.google.firebase", name = "firebase-config-ktx"}
+firebase-config-ktx = { group = "com.google.firebase", name = "firebase-analytics-ktx"}
 
 androidx-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
@@ -89,4 +98,5 @@ hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "parcelize" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+firebase = { id = "com.google.gms.google-services", version.ref = "firebase-plugin"}
 
