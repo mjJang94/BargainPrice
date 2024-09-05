@@ -48,7 +48,7 @@ class PriceCheckManager @Inject constructor(
         cachedFavorite.forEach { cache ->
             val refreshItem = dataSource.refreshFavoriteList(
                 query = cache.title,
-                page = 1,
+                start = 1,
                 pageSize = 10,
             ).items.firstOrNull {
                 it.productId == cache.productId

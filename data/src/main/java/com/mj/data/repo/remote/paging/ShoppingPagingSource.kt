@@ -17,13 +17,14 @@ class ShoppingPagingSource(
 
     override suspend fun load(params: LoadParams<Int>): LoadResult<Int, Shopping> {
         return try {
-            val currentPage = params.key ?: 1
-            val shoppingData = dataSource.getShoppingData(query, currentPage)
+            val start = params.key ?: 1
+
+            val shoppingData = dataSource.getShoppingData(query, start)
 
             LoadResult.Page(
                 data = shoppingData.items.translate(),
-                prevKey = if (currentPage == 1) null else currentPage - 1,
-                nextKey = if (shoppingData.total < MAX_PAGE_SIZE) null else shoppingData.start + 1,
+                prevKey = if (start == 1) null else start - 1,
+                nextKey = if (shoppingData.total < MAX_PAGE_SIZE) null else start + shoppingData.display,
             )
         } catch (e: Exception) {
             Timber.d("error = $e")
