@@ -31,8 +31,6 @@ class HomeContract {
     ) : ViewState
 
     sealed class Effect : ViewSideEffect {
-        data object EmptyQuery : Effect()
-
         sealed class Navigation : Effect() {
             data class ToDetail(val productId: String) : Navigation()
         }

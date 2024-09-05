@@ -127,12 +127,10 @@ fun HomeScreen(
     val priceAlarmActivated by state.priceAlarmActivated.collectAsStateWithLifecycle()
     val currentRefreshTime by state.refreshTime.collectAsStateWithLifecycle()
 
-    val emptyQueryMsg = stringResource(R.string.empty_query)
 
     LaunchedEffect(SIDE_EFFECTS_KEY) {
         effectFlow?.onEach { effect ->
             when (effect) {
-                is Effect.EmptyQuery -> Toast.makeText(context, emptyQueryMsg, Toast.LENGTH_SHORT).show()
                 is Effect.Navigation.ToDetail -> onNavigationRequested(effect)
             }
         }?.collect()
@@ -195,6 +193,7 @@ private fun HomeContent(
                 .weight(1f),
             state = pagerState,
             beyondBoundsPageCount = pagerState.pageCount,
+            userScrollEnabled = false,
         ) { index ->
             when (Pages.entries[index]) {
                 Pages.SEARCH -> {
@@ -287,21 +286,12 @@ private fun ShoppingListPage(
                 .weight(1f),
             contentAlignment = Alignment.Center
         ) {
-            when {
-                shoppingItems.itemCount < 1 -> {
-                    EmptyPage(
-                        modifier = Modifier.fillMaxSize(),
-                        label = stringResource(id = R.string.empty_query)
-                    )
-                }
-
-                else -> ShoppingList(
-                    shoppingItems = shoppingItems,
-                    onAddFavoriteClick = onAddFavoriteClick,
-                    onDeleteFavoriteClick = onDeleteFavoriteClick,
-                    onRetryButtonClick = onRetryButtonClick,
-                )
-            }
+            ShoppingList(
+                shoppingItems = shoppingItems,
+                onAddFavoriteClick = onAddFavoriteClick,
+                onDeleteFavoriteClick = onDeleteFavoriteClick,
+                onRetryButtonClick = onRetryButtonClick,
+            )
         }
     }
 }
@@ -462,6 +452,17 @@ private fun ShoppingList(
 
                 loadState.append is LoadState.Loading -> {
                     item { LoadingPageItem(modifier = Modifier) }
+                }
+
+                loadState.append is LoadState.NotLoading -> {
+                    if (shoppingItems.itemCount < 1) {
+                        item {
+                            EmptyPage(
+                                modifier = Modifier.fillMaxSize(),
+                                label = stringResource(id = R.string.empty_query_result)
+                            )
+                        }
+                    }
                 }
             }
         }

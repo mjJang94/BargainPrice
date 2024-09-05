@@ -1,5 +1,8 @@
 package com.mj.data.mapper
 
+import com.google.gson.Gson
+import com.google.gson.JsonElement
+import com.google.gson.reflect.TypeToken
 import com.mj.data.repo.local.entity.RecordPriceEntity
 import com.mj.data.repo.local.entity.ShoppingEntity
 import com.mj.data.repo.remote.data.ShoppingVo
@@ -89,3 +92,15 @@ fun RecordPrice.translate(): RecordPriceEntity = RecordPriceEntity(
     highestPrice = highestPrice,
     timeStamp = timeStamp,
 )
+
+inline fun <reified T> String?.parseJsonOrNull(): T? =
+    Gson().fromJsonOrNull(this)
+
+inline fun <reified T> Gson.fromJson(json: String?): T =
+    fromJson(json, object : TypeToken<T>() {}.type)
+
+inline fun <reified T> Gson.fromJsonOrNull(json: String?): T? =
+    runCatching { fromJson<T>(json) }.getOrNull()
+
+inline fun <reified T> T.toJson(): String =
+    Gson().toJson(this, object : TypeToken<T>() {}.type)

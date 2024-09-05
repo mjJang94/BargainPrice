@@ -16,11 +16,11 @@ class DataSourceImpl @Inject constructor(
     private val recordPriceDao: RecordPriceDao,
     private val store: DataStoreManager
 ) : DataSource {
-    override suspend fun getShoppingData(query: String, page: Int): ShoppingVo =
-        naverApi.getShoppingData(q = query, start = page)
+    override suspend fun getShoppingData(query: String, start: Int): ShoppingVo =
+        naverApi.getShoppingData(q = query, start = start)
 
-    override suspend fun refreshFavoriteList(query: String, page: Int, pageSize: Int) =
-        naverApi.getShoppingData(q = query, start = page, display = pageSize)
+    override suspend fun refreshFavoriteList(query: String, start: Int, pageSize: Int) =
+        naverApi.getShoppingData(q = query, start = start, display = pageSize)
 
     override fun shoppingFlow(): Flow<List<ShoppingEntity>> =
         shoppingDao.flow()
@@ -53,13 +53,13 @@ class DataSourceImpl @Inject constructor(
         store.storePriceCheckAlarmActivation(active)
 
     override fun getRecentSearchQueriesFlow(): Flow<Set<String>> =
-        store.recentSearchQueries
+        store.recentSearchQueriesFlow
 
     override suspend fun setRecentQueries(queries: Set<String>) =
         store.storeRecentSearchQueries(queries)
 
     override fun getRefreshTime(): Flow<Long> =
-        store.recentRefreshTime
+        store.recentRefreshTimeFlow
 
     override suspend fun setRefreshTime(time: Long) =
         store.storeRecentRefreshTime(time)

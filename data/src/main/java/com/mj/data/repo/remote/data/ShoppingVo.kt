@@ -3,6 +3,7 @@ package com.mj.data.repo.remote.data
 data class ShoppingVo(
     val total: Int,
     val start: Int,
+    val display: Int,
     val items: List<Item>
 ) {
     data class Item(

@@ -2,7 +2,7 @@
     <string name="search">검색</string>
     <string name="favorite">관심상품</string>
     <string name="query_label">검색어</string>
-    <string name="empty_query">검색어를 입력해주세요.</string>
+    <string name="empty_query_result">검색 결과가 없습니다</string>
     <string name="empty_favorite">관심 상품이 없습니다.</string>
     <string name="network_error_retry_button_text">다시 불러오기</string>
     <string name="fetch_data_from_server">데이터 로드 중</string>
