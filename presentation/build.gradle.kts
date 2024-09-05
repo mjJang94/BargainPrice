@@ -57,8 +57,12 @@ dependencies {
     implementation(libs.androidx.compose.paging)
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.hilt.navigation.compose)
-
     implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.androidx.browser)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics.ktx)
+    implementation(libs.firebase.config.ktx)
 
     implementation(libs.glide)
     ksp(libs.glide.ksp)

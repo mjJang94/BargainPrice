@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
@@ -6,6 +9,10 @@ plugins {
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.parcelize)
     alias(libs.plugins.firebase)
+}
+
+val prop = Properties().apply {
+    load(FileInputStream(File(rootProject.rootDir, "local.properties")))
 }
 
 android {
@@ -23,6 +30,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "NAVER_CLIENT_ID", prop.getProperty("naver_client_id"))
+        buildConfigField("String", "NAVER_CLIENT_SECRET", prop.getProperty("naver_client_secret"))
     }
 
     buildTypes {
@@ -94,10 +104,10 @@ dependencies {
     implementation(libs.androidx.compose.paging)
     implementation(libs.androidx.paging.runtime)
     implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.androidx.browser)
 
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics.ktx)
-    implementation(libs.firebase.config.ktx)
+    implementation(libs.naver.oauth)
+//    implementation(libs.naver.oauth.jdk)
 
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
