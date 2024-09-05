@@ -4,6 +4,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import androidx.core.app.NotificationCompat
+import com.mj.core.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -45,7 +46,7 @@ class NotificationHelper @Inject constructor(
 
     private fun buildSimpleNotification(type: NotificationType): NotificationCompat.Builder {
         return NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(type.title)
             .setContentText(type.message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -54,7 +55,7 @@ class NotificationHelper @Inject constructor(
 
     private fun buildActionNotification(type: NotificationType): NotificationCompat.Builder {
         return NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.mipmap.ic_launcher)
             .setContentTitle(type.title)
             .setContentText(type.message)
             .addAction(android.R.drawable.ic_menu_view, type.actionText, type.pendingIntent)

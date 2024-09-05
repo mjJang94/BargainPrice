@@ -37,13 +37,6 @@ class HomeViewModel @Inject constructor(
         private const val MAX_RECENT_QUERY_COUNT = 10
     }
 
-    init {
-        getFavoriteShoppingItems()
-        getRecentQueries()
-        getAlarmActivation()
-        getRefreshTime()
-    }
-
     override fun setInitialState() = State(
         changedQuery = MutableStateFlow(""),
         priceAlarmActivated = MutableStateFlow(false),
@@ -111,7 +104,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getFavoriteShoppingItems() {
+    fun getFavoriteShoppingItems() {
         viewModelScope.launch {
             combinedShoppingUseCases.getFavoriteShoppingData()
                 .flowOn(Dispatchers.IO)
@@ -158,7 +151,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getAlarmActivation() {
+    fun getAlarmActivation() {
         viewModelScope.launch {
             combinedShoppingUseCases.getAlarmActiveUseCase()
                 .flowOn(Dispatchers.IO)
@@ -178,7 +171,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getRecentQueries() {
+    fun getRecentQueries() {
         viewModelScope.launch {
             combinedShoppingUseCases.getRecentQueriesUseCase()
                 .flowOn(Dispatchers.IO)
@@ -188,7 +181,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun getRefreshTime() {
+    fun getRefreshTime() {
         viewModelScope.launch {
             combinedShoppingUseCases.getRefreshTimeUseCase()
                 .flowOn(Dispatchers.IO)

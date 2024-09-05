@@ -192,7 +192,6 @@ private fun HomeContent(
                 .fillMaxSize()
                 .weight(1f),
             state = pagerState,
-            beyondBoundsPageCount = pagerState.pageCount,
             userScrollEnabled = false,
         ) { index ->
             when (Pages.entries[index]) {
@@ -435,37 +434,37 @@ private fun ShoppingList(
         }
 
         shoppingItems.apply {
-            when {
-                loadState.refresh is LoadState.Loading -> {
-                    item { PageLoader(modifier = Modifier.fillParentMaxSize()) }
-                }
+//            when {
+//                loadState.refresh is LoadState.Loading -> {
+//                    item { PageLoader(modifier = Modifier.fillParentMaxSize()) }
+//                }
+//
+//                loadState.refresh is LoadState.Error -> {
+//                    val error = shoppingItems.loadState.refresh as LoadState.Error
+//                    item {
+//                        ErrorMessage(
+//                            modifier = Modifier.fillParentMaxSize(),
+//                            message = error.error.localizedMessage!!,
+//                            onClickRetry = { onRetryButtonClick() })
+//                    }
+//                }
+//
+//                loadState.append is LoadState.Loading -> {
+//                    item { LoadingPageItem(modifier = Modifier) }
+//                }
 
-                loadState.refresh is LoadState.Error -> {
-                    val error = shoppingItems.loadState.refresh as LoadState.Error
-                    item {
-                        ErrorMessage(
-                            modifier = Modifier.fillParentMaxSize(),
-                            message = error.error.localizedMessage!!,
-                            onClickRetry = { onRetryButtonClick() })
-                    }
-                }
-
-                loadState.append is LoadState.Loading -> {
-                    item { LoadingPageItem(modifier = Modifier) }
-                }
-
-                loadState.append is LoadState.NotLoading -> {
-                    if (shoppingItems.itemCount < 1) {
-                        item {
-                            EmptyPage(
-                                modifier = Modifier.fillMaxSize(),
-                                label = stringResource(id = R.string.empty_query_result)
-                            )
-                        }
-                    }
-                }
+//                loadState.append is LoadState.NotLoading -> {
+//                    if (shoppingItems.itemCount < 1) {
+//                        item {
+//                            EmptyPage(
+//                                modifier = Modifier.fillMaxSize(),
+//                                label = stringResource(id = R.string.empty_query_result)
+//                            )
+//                        }
+//                    }
+//                }
             }
-        }
+//        }
     }
 }
 

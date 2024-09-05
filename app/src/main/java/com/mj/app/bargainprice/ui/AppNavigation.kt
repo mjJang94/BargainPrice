@@ -31,9 +31,7 @@ fun AppNavigation(
         proceedFlow.collect { result ->
             if (result) {
                 navController.navigate(route = HOME) {
-                    popUpTo(LOGIN) {
-                        inclusive = true
-                    }
+                    popUpTo(LOGIN) { inclusive = true }
                 }
             }
         }
