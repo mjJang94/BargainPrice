@@ -91,6 +91,7 @@ class MainActivity : ComponentActivity(), HoistingEventCallback {
         when (event) {
             is Event.OpenLink -> startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(event.url)))
             is Event.Authenticate -> NaverIdLoginSDK.authenticate(this, oauthLoginCallback)
+            is Event.SkipLogin -> viewModel.loginSkip()
         }
     }
 

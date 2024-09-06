@@ -3,6 +3,7 @@ package com.mj.presentation.login.navigation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.mj.core.theme.white
@@ -14,7 +15,13 @@ import com.mj.presentation.login.LoginViewModel
 fun LoginScreenDestination(
     viewModel: LoginViewModel = hiltViewModel(),
     onAuthenticate: () -> Unit,
+    onSkip: () -> Unit,
 ) {
+
+    LaunchedEffect(Unit) {
+        viewModel.checkRequireLogin()
+    }
+
     LoginScreen(
         modifier = Modifier
             .fillMaxSize()
@@ -25,6 +32,7 @@ fun LoginScreenDestination(
         onNavigationRequested = { effect ->
             when (effect) {
                 is LoginContract.Effect.Login -> onAuthenticate()
+                is LoginContract.Effect.Skip -> onSkip()
             }
         }
     )

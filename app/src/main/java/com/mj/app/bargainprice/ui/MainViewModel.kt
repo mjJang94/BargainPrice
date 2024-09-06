@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mj.data.repo.local.pref.ClientInfo
 import com.mj.data.repo.local.pref.DataStoreManager
+import com.mj.presentation.home.HomeViewModel
 import com.navercorp.nid.profile.data.NidProfile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val dataStore: DataStoreManager
+    private val dataStore: DataStoreManager, //UseCase
 ) : ViewModel() {
 
     val alarmActive = dataStore.priceCheckAlarmActiveFlow
@@ -34,11 +35,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    val proceed = dataStore.clientInformationFlow.map { it != null }
+    val proceed = dataStore.skipLoginFlow
         .shareIn(
             scope = viewModelScope,
             started = SharingStarted.Lazily
         )
+
     fun configure(result: NidProfile?) {
         viewModelScope.launch {
             if (result == null) return@launch
@@ -53,6 +55,13 @@ class MainViewModel @Inject constructor(
                 birthYear = result.birthYear,
             )
             dataStore.storeClientInformation(clientInfo)
+            dataStore.storeSkipLogin(true)
+        }
+    }
+
+    fun loginSkip() {
+        viewModelScope.launch {
+            dataStore.storeSkipLogin(true)
         }
     }
 }

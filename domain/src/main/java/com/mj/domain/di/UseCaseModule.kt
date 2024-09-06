@@ -16,6 +16,8 @@ import com.mj.domain.usecase.home.GetShoppingDataUseCase
 import com.mj.domain.usecase.home.InsertFavoriteShoppingUseCase
 import com.mj.domain.usecase.home.SetAlarmActiveUseCase
 import com.mj.domain.usecase.home.SetRecentQueriesUseCase
+import com.mj.domain.usecase.login.CombinedLoginUseCases
+import com.mj.domain.usecase.login.GetSkipLoginUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,6 +27,14 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object UseCaseModule {
+
+    @Provides
+    @Singleton
+    fun provideLoginUseCase(
+        repository: DataRepository
+    ) = CombinedLoginUseCases (
+        getSkipLoginUseCase = GetSkipLoginUseCase(repository)
+    )
 
     @Provides
     @Singleton

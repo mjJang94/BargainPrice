@@ -50,7 +50,7 @@ class DataRepositoryImpl(
     override suspend fun deleteRecordPriceItem(productId: String) =
         dataSource.deleteRecordPriceItem(productId)
 
-    override fun getAlarmActive(): Flow<Boolean> =
+    override fun getAlarmActiveFlow(): Flow<Boolean> =
         dataSource.getAlarmActiveFlow()
 
     override suspend fun setAlarmActive(active: Boolean) =
@@ -63,5 +63,8 @@ class DataRepositoryImpl(
         dataSource.setRecentQueries(queries)
 
     override fun getRefreshTimeFlow(): Flow<Long> =
-        dataSource.getRefreshTime()
+        dataSource.getRefreshTimeFlow()
+
+    override fun getSkipLoginFlow(): Flow<Boolean> =
+        dataSource.getSkipLoginFlow()
 }

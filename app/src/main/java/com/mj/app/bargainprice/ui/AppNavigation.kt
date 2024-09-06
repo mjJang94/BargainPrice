@@ -17,6 +17,7 @@ import com.mj.app.bargainprice.ui.event.HoistingEventController
 import com.mj.presentation.detail.navigation.DetailScreenDestination
 import com.mj.presentation.home.navigation.HomeScreenDestination
 import com.mj.presentation.login.navigation.LoginScreenDestination
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -30,6 +31,7 @@ fun AppNavigation(
     LaunchedEffect(Unit) {
         proceedFlow.collect { result ->
             if (result) {
+                delay(500L)
                 navController.navigate(route = HOME) {
                     popUpTo(LOGIN) { inclusive = true }
                 }
@@ -46,6 +48,7 @@ fun AppNavigation(
         composable(route = LOGIN) {
             LoginScreenDestination(
                 onAuthenticate = hoistingEventController.authenticate,
+                onSkip = hoistingEventController.skipLogin,
             )
         }
 

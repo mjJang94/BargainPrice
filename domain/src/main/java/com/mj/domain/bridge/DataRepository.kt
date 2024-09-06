@@ -18,11 +18,13 @@ interface DataRepository {
     suspend fun insertRecordPriceItem(recordPrice: RecordPrice)
     suspend fun deleteRecordPriceItem(productId: String)
 
-    fun getAlarmActive(): Flow<Boolean>
+    fun getAlarmActiveFlow(): Flow<Boolean>
     suspend fun setAlarmActive(active: Boolean)
 
     fun getRecentSearchQueriesFlow(): Flow<Set<String>>
     suspend fun setRecentQueries(queries: Set<String>)
 
     fun getRefreshTimeFlow(): Flow<Long>
+
+    fun getSkipLoginFlow(): Flow<Boolean>
 }

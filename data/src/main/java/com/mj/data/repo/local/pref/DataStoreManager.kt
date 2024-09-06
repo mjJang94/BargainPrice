@@ -27,6 +27,7 @@ class DataStoreManager @Inject constructor(
         val PRICE_CHECK_ALARM_ACTIVATION_KEY = booleanPreferencesKey("PRICE_CHECK_ALARM_ACTIVATION_KEY")
         val RECENT_SEARCH_QUERIES_KEY = stringSetPreferencesKey("RECENT_SEARCH_QUERIES_KEY")
         val RECENT_REFRESH_TIME = longPreferencesKey("RECENT_REFRESH_TIME")
+        val SKIP_LOGIN = booleanPreferencesKey("SKIP_LOGIN")
     }
 
     suspend fun storeClientInformation(client: ClientInfo) {
@@ -53,6 +54,12 @@ class DataStoreManager @Inject constructor(
         }
     }
 
+    suspend fun storeSkipLogin(skip: Boolean) {
+        context.dataStore.edit { store ->
+            store[SKIP_LOGIN] = skip
+        }
+    }
+
     val clientInformationFlow: Flow<ClientInfo?> = context.dataStore.data.map {
         it[CLIENT_INFORMATION_KEY]?.parseJsonOrNull<ClientInfo>()
     }
@@ -67,5 +74,9 @@ class DataStoreManager @Inject constructor(
 
     val recentRefreshTimeFlow: Flow<Long> = context.dataStore.data.map {
         it[RECENT_REFRESH_TIME] ?: 0L
+    }
+
+    val skipLoginFlow: Flow<Boolean> = context.dataStore.data.map {
+        it[SKIP_LOGIN] ?: false
     }
 }

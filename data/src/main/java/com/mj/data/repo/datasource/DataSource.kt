@@ -26,6 +26,8 @@ interface DataSource {
     fun getRecentSearchQueriesFlow(): Flow<Set<String>>
     suspend fun setRecentQueries(queries: Set<String>)
 
-    fun getRefreshTime(): Flow<Long>
+    fun getRefreshTimeFlow(): Flow<Long>
     suspend fun setRefreshTime(time: Long)
+
+    fun getSkipLoginFlow(): Flow<Boolean>
 }

@@ -1,8 +1,7 @@
-@file:OptIn(ExperimentalFoundationApi::class, ExperimentalGlideComposeApi::class)
+@file:OptIn(ExperimentalGlideComposeApi::class)
 
 package com.mj.presentation.home
 
-import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -52,7 +51,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -64,7 +62,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.paging.LoadState
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -111,7 +108,6 @@ fun HomeScreen(
     onEventSent: (event: Event) -> Unit,
     onNavigationRequested: (effect: Effect.Navigation) -> Unit,
 ) {
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
 
@@ -236,7 +232,7 @@ private fun HomeContent(
                     text = {
                         Text(
                             text = stringResource(id = title.resId),
-                            style = Typography.titleLarge,
+                            style = Typography.titleSmall,
                             color = when (pagerState.currentPage == index) {
                                 true -> green_50
                                 else -> green_900
