@@ -1,8 +1,9 @@
 package com.mj.app.bargainprice.ui
 
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -13,13 +14,13 @@ import com.mj.app.bargainprice.ui.Navigation.Args.FAVORITE_PRODUCT_ID
 import com.mj.app.bargainprice.ui.Navigation.Routes.DETAIL
 import com.mj.app.bargainprice.ui.Navigation.Routes.HOME
 import com.mj.app.bargainprice.ui.Navigation.Routes.LOGIN
+import com.mj.app.bargainprice.ui.Navigation.Routes.SEARCH
 import com.mj.app.bargainprice.ui.event.HoistingEventController
 import com.mj.presentation.detail.navigation.DetailScreenDestination
 import com.mj.presentation.home.navigation.HomeScreenDestination
 import com.mj.presentation.login.navigation.LoginScreenDestination
-import kotlinx.coroutines.delay
+import com.mj.presentation.search.navigation.SearchScreenDestination
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun AppNavigation(
@@ -28,33 +29,46 @@ fun AppNavigation(
     hoistingEventController: HoistingEventController,
 ) {
 
-    LaunchedEffect(Unit) {
-        proceedFlow.collect { result ->
-            if (result) {
-                delay(500L)
-                navController.navigate(route = HOME) {
-                    popUpTo(LOGIN) { inclusive = true }
-                }
-            }
-        }
-    }
-
     NavHost(
         modifier = Modifier.fillMaxSize(),
         navController = navController,
         startDestination = LOGIN,
     ) {
 
-        composable(route = LOGIN) {
+        composable(
+            route = LOGIN,
+            popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down, animationSpec = tween(500)) },
+            ) {
             LoginScreenDestination(
+                proceedFlow = proceedFlow,
                 onAuthenticate = hoistingEventController.authenticate,
-                onSkip = hoistingEventController.skipLogin,
+                onSkipRequest = hoistingEventController.skipLogin,
+                onProceed = {
+                    navController.navigate(route = HOME) {
+                        popUpTo(LOGIN) { inclusive = true }
+                    }
+                },
             )
         }
 
         composable(route = HOME) {
             HomeScreenDestination(
-                onGoToDetail = { productId -> navController.navigate(route = "$DETAIL/${productId}") }
+                onGoToDetail = { productId -> navController.navigate(route = "$DETAIL/${productId}") },
+                onGoToSearch = { navController.navigate(route = SEARCH) }
+            )
+        }
+
+        composable(
+            route = SEARCH,
+            enterTransition = { slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up, animationSpec = tween(500)) },
+            popExitTransition = { slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down, animationSpec = tween(500)) },
+        ) {
+            SearchScreenDestination(
+                onGoToHome = {
+                    navController.navigate(route = HOME) {
+                        popUpTo(SEARCH) { inclusive = true }
+                    }
+                }
             )
         }
 
@@ -87,5 +101,6 @@ object Navigation {
         const val LOGIN = "LOGIN"
         const val HOME = "HOME"
         const val DETAIL = "DETAIL"
+        const val SEARCH = "SEARCH"
     }
 }

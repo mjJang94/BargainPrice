@@ -1,4 +1,4 @@
-package com.mj.domain.usecase.home
+package com.mj.domain.usecase.search
 
 import androidx.paging.PagingData
 import com.mj.domain.bridge.DataRepository

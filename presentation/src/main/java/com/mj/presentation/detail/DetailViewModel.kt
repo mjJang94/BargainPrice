@@ -1,7 +1,7 @@
 package com.mj.presentation.detail
 
 import androidx.lifecycle.viewModelScope
-import com.mj.core.base.BaseViewModel
+import com.mj.presentation.base.BaseViewModel
 import com.mj.core.ktx.Calendar
 import com.mj.core.ktx.lastWeek
 import com.mj.domain.model.RecordPrice

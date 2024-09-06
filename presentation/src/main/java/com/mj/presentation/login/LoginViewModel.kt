@@ -1,7 +1,7 @@
 package com.mj.presentation.login
 
 import androidx.lifecycle.viewModelScope
-import com.mj.core.base.BaseViewModel
+import com.mj.presentation.base.BaseViewModel
 import com.mj.domain.usecase.login.CombinedLoginUseCases
 import com.mj.presentation.login.LoginContract.Effect
 import com.mj.presentation.login.LoginContract.Event
@@ -11,6 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 

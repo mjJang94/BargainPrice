@@ -12,11 +12,10 @@ interface DataRepository {
     fun getShoppingFlowById(productId: String): Flow<Shopping>
     suspend fun getAllShoppingItems(): List<Shopping>
     suspend fun insertShoppingItem(data: Shopping)
-    suspend fun deleteShoppingItem(productId: String): Int
+    suspend fun deleteShoppingItem(productId: String)
 
     fun recordPriceFlow(productId: String, startTime: Long, endTime: Long): Flow<List<RecordPrice>>
     suspend fun insertRecordPriceItem(recordPrice: RecordPrice)
-    suspend fun deleteRecordPriceItem(productId: String)
 
     fun getAlarmActiveFlow(): Flow<Boolean>
     suspend fun setAlarmActive(active: Boolean)

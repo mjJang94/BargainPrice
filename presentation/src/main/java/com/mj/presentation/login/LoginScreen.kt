@@ -27,7 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.mj.core.base.SIDE_EFFECTS_KEY
+import com.mj.presentation.base.SIDE_EFFECTS_KEY
 import com.mj.core.common.compose.Progress
 import com.mj.core.theme.BargainPriceTheme
 import com.mj.core.theme.Typography

@@ -18,11 +18,11 @@ import timber.log.Timber
 fun HomeScreenDestination(
     viewModel: HomeViewModel = hiltViewModel(),
     onGoToDetail: (String) -> Unit,
+    onGoToSearch: () -> Unit,
 ) {
 
     LaunchedEffect(Unit) {
         viewModel.getFavoriteShoppingItems()
-        viewModel.getRecentQueries()
         viewModel.getAlarmActivation()
         viewModel.getRefreshTime()
     }
@@ -37,7 +37,8 @@ fun HomeScreenDestination(
         onNavigationRequested = { effect ->
             when (effect) {
                 is HomeContract.Effect.Navigation.ToDetail -> onGoToDetail(effect.productId)
+                is HomeContract.Effect.Navigation.ToSearch -> onGoToSearch()
             }
-        },
+        }
     )
 }

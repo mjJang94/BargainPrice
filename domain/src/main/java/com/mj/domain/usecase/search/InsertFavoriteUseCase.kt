@@ -1,10 +1,10 @@
-package com.mj.domain.usecase.home
+package com.mj.domain.usecase.search
 
 import com.mj.domain.bridge.DataRepository
 import com.mj.domain.model.Shopping
 import com.mj.domain.usecase.base.ActionUseCase
 
-class InsertFavoriteShoppingUseCase(
+class InsertFavoriteUseCase(
     private val repository: DataRepository
 ) : ActionUseCase<Shopping>() {
 

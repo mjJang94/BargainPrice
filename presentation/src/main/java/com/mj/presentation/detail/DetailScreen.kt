@@ -34,7 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.mj.core.base.SIDE_EFFECTS_KEY
+import com.mj.presentation.base.SIDE_EFFECTS_KEY
 import com.mj.core.common.compose.ImmutableGlideImage
 import com.mj.core.common.compose.LineChart
 import com.mj.core.common.compose.Toolbar

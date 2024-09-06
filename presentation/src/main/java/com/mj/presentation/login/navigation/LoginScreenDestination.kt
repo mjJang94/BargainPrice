@@ -10,15 +10,27 @@ import com.mj.core.theme.white
 import com.mj.presentation.login.LoginContract
 import com.mj.presentation.login.LoginScreen
 import com.mj.presentation.login.LoginViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import timber.log.Timber
 
 @Composable
 fun LoginScreenDestination(
     viewModel: LoginViewModel = hiltViewModel(),
+    proceedFlow: Flow<Boolean>,
     onAuthenticate: () -> Unit,
-    onSkip: () -> Unit,
+    onSkipRequest: () -> Unit,
+    onProceed: () -> Unit,
 ) {
 
     LaunchedEffect(Unit) {
+        proceedFlow.collect { result ->
+            if (result) {
+                delay(500L)
+                Timber.d("error? 1")
+                onProceed()
+            }
+        }
         viewModel.checkRequireLogin()
     }
 
@@ -32,7 +44,7 @@ fun LoginScreenDestination(
         onNavigationRequested = { effect ->
             when (effect) {
                 is LoginContract.Effect.Login -> onAuthenticate()
-                is LoginContract.Effect.Skip -> onSkip()
+                is LoginContract.Effect.Skip -> onSkipRequest()
             }
         }
     )

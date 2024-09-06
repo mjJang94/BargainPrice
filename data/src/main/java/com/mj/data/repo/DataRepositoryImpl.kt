@@ -38,17 +38,16 @@ class DataRepositoryImpl(
     override suspend fun insertShoppingItem(data: Shopping) =
         dataSource.insertShoppingItem(data.translate())
 
-    override suspend fun deleteShoppingItem(productId: String): Int =
+    override suspend fun deleteShoppingItem(productId: String) {
         dataSource.deleteShoppingItem(productId)
+        dataSource.deleteRecordPriceItem(productId)
+    }
 
     override fun recordPriceFlow(productId: String, startTime: Long, endTime: Long): Flow<List<RecordPrice>> =
         dataSource.recordPriceFlow(productId, startTime, endTime).map { it.translate() }
 
     override suspend fun insertRecordPriceItem(recordPrice: RecordPrice) =
         dataSource.insertRecordPriceItem(recordPrice.translate())
-
-    override suspend fun deleteRecordPriceItem(productId: String) =
-        dataSource.deleteRecordPriceItem(productId)
 
     override fun getAlarmActiveFlow(): Flow<Boolean> =
         dataSource.getAlarmActiveFlow()

@@ -1,8 +1,8 @@
 package com.mj.presentation.detail
 
-import com.mj.core.base.ViewEvent
-import com.mj.core.base.ViewSideEffect
-import com.mj.core.base.ViewState
+import com.mj.presentation.base.ViewEvent
+import com.mj.presentation.base.ViewSideEffect
+import com.mj.presentation.base.ViewState
 import com.mj.domain.model.Shopping
 import kotlinx.coroutines.flow.StateFlow
 

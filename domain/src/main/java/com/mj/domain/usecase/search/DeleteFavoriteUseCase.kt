@@ -1,13 +1,13 @@
-package com.mj.domain.usecase.home
+package com.mj.domain.usecase.search
 
 import com.mj.domain.bridge.DataRepository
 import com.mj.domain.usecase.base.ActionUseCase
 
-class DeleteRecordPriceUseCase(
+class DeleteFavoriteUseCase(
     private val repository: DataRepository
 ) : ActionUseCase<String>() {
     
     override suspend fun execute(param: String) {
-        repository.deleteRecordPriceItem(param)
+        repository.deleteShoppingItem(param)
     }
 }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="search">검색</string>
+    <string name="home">홈</string>
     <string name="favorite">관심상품</string>
     <string name="query_label">검색어</string>
     <string name="empty_query_result">검색 결과가 없습니다</string>

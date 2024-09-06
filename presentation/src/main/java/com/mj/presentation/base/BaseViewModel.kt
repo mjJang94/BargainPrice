@@ -1,4 +1,4 @@
-package com.mj.core.base
+package com.mj.presentation.base
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf

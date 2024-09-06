@@ -1,4 +1,4 @@
-package com.mj.domain.usecase.home
+package com.mj.domain.usecase.search
 
 import com.mj.domain.bridge.DataRepository
 import com.mj.domain.usecase.base.FlowUseCase
