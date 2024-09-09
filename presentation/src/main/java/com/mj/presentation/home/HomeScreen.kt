@@ -302,8 +302,8 @@ private fun ShoppingListRow(
                         }
                     },
                 painter = when (item.isFavorite) {
-                    true -> painterResource(id = R.drawable.baseline_star_24)
-                    else -> painterResource(id = R.drawable.baseline_star_border_24)
+                    true -> painterResource(id = R.drawable.baseline_favorite_24)
+                    else -> painterResource(id = R.drawable.baseline_favorite_border_24)
                 },
                 contentDescription = ""
             )

@@ -44,7 +44,7 @@ fun Toolbar(
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = titleText,
-                    style = Typography.titleLarge,
+                    style = Typography.titleMedium,
                     color = black,
                     textAlign = TextAlign.Center,
                 )

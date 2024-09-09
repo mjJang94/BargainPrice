@@ -2,25 +2,30 @@
 
 package com.mj.presentation.search
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Divider
+import androidx.compose.material.Surface
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -37,11 +42,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
@@ -54,10 +61,13 @@ import androidx.paging.compose.itemKey
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.mj.core.common.compose.ImmutableGlideImage
 import com.mj.core.theme.Typography
+import com.mj.core.theme.black
+import com.mj.core.theme.gray_light
 import com.mj.core.theme.green_200
 import com.mj.core.theme.green_50
 import com.mj.core.theme.green_500
 import com.mj.core.theme.white
+import com.mj.core.toPriceFormat
 import com.mj.presentation.R
 import com.mj.presentation.base.SIDE_EFFECTS_KEY
 import com.mj.presentation.search.SearchContract.Effect
@@ -268,17 +278,19 @@ private fun ShoppingList(
     onRetryButtonClick: () -> Unit,
 ) {
     LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 5.dp),
-        contentPadding = PaddingValues(all = 10.dp),
-        verticalArrangement = Arrangement.spacedBy(5.dp)
+        modifier = Modifier.fillMaxSize(),
     ) {
         items(
             count = shoppingItems.itemCount,
             key = shoppingItems.itemKey { it.productId },
         ) { index ->
             val item = shoppingItems[index] ?: return@items
+
+            Divider(
+                thickness = 10.dp,
+                color = gray_light,
+            )
+
             ShoppingListRow(
                 item = item,
                 onAddFavoriteClick = onAddFavoriteClick,
@@ -334,14 +346,69 @@ private fun ShoppingListRow(
     onDeleteFavoriteClick: (String) -> Unit = {},
     onItemClick: (String) -> Unit = {},
 ) {
-    Row(modifier = Modifier
-        .height(150.dp)
-        .fillMaxWidth()
-    ) {
-        ImmutableGlideImage(
-            modifier = Modifier.fillMaxSize(),
-            model = item.image,
-        )
+    Surface(modifier = Modifier.padding(all = 10.dp)) {
+        Row(
+            modifier = Modifier
+                .height(130.dp)
+                .fillMaxWidth()
+                .clickable { onItemClick(item.productId) }
+        ) {
+                ImmutableGlideImage(
+                    modifier = Modifier
+                        .size(130.dp)
+                        .border(BorderStroke(1.dp, gray_light), shape = RoundedCornerShape(size = 10.dp))
+                        .clip(shape = RoundedCornerShape(size = 10.dp)),
+                    model = item.image,
+                )
+
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(start = 5.dp)
+                    .weight(1f),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.Start,
+            ) {
+                Text(
+                    text = item.title,
+                    style = Typography.bodyLarge,
+                    color = black,
+                )
+
+                Text(
+                    text = item.lowestPrice.toPriceFormat() ?: stringResource(id = R.string.unknown_price),
+                    style = Typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = black,
+                )
+                Text(
+                    text = item.mallName,
+                    style = Typography.bodyMedium,
+                    color = black
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .border(1.dp, gray_light, CircleShape)
+                    .padding(3.dp)
+            ) {
+                Image(
+                    modifier = Modifier.clickable {
+                        when (item.isFavorite) {
+                            true -> onDeleteFavoriteClick(item.productId)
+                            else -> onAddFavoriteClick(item)
+                        }
+                    },
+                    painter = when (item.isFavorite) {
+                        true -> painterResource(id = R.drawable.baseline_favorite_24)
+                        else -> painterResource(id = R.drawable.baseline_favorite_border_24)
+                    },
+                    contentDescription = ""
+                )
+            }
+        }
     }
 }
 
