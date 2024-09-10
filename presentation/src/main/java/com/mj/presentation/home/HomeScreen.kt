@@ -170,7 +170,6 @@ private fun HomeContent(
             modifier = Modifier.fillMaxWidth(),
             selectedTabIndex = pagerState.currentPage,
             indicator = {},
-            divider = {},
         ) {
             Pages.entries.forEachIndexed { index, title ->
                 Tab(
