@@ -30,20 +30,22 @@ class PriceCheckManager @Inject constructor(
         result: () -> Unit,
     ) {
         runCatching {
-            refresh(interactIntent)
+            refresh()
         }.onSuccess {
             setRefreshAlarm(System.currentTimeMillis())
             fireSuccessNotification(context, actionIntent)
+            setAlarmSchedule(interactIntent)
             result()
         }.onFailure { tr ->
             Timber.e(tr)
             setRefreshAlarm(System.currentTimeMillis())
             fireFailureNotification(context, tr)
+            setAlarmSchedule(interactIntent)
             result()
         }
     }
 
-    private suspend fun refresh(intent: Intent) {
+    private suspend fun refresh() {
         val cachedFavorite = dataSource.getAllShoppingItems()
         cachedFavorite.forEach { cache ->
             val refreshItem = dataSource.refreshFavoriteList(
@@ -67,7 +69,6 @@ class PriceCheckManager @Inject constructor(
             dataSource.insertShoppingItem(shoppingEntity)
             dataSource.insertRecordPriceItem(recordPriceEntity)
         }
-        setAlarmSchedule(intent)
     }
 
     private fun setAlarmSchedule(interactIntent: Intent) {
