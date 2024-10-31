@@ -17,7 +17,7 @@ val prop = Properties().apply {
 
 android {
     namespace = "com.mj.app.bargainprice"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.mj.app.bargainprice"

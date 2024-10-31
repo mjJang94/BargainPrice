@@ -16,7 +16,7 @@ val prop = Properties().apply {
 
 android {
     namespace = "com.mj.data"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
