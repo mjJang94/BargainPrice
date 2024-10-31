@@ -44,6 +44,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -51,6 +53,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -76,6 +79,7 @@ import com.mj.presentation.search.SearchContract.State
 import com.mj.presentation.search.SearchViewModel.ShoppingItem
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -171,11 +175,16 @@ private fun SearchBox(
     onQueryChange: (String) -> Unit,
     onSearchClick: () -> Unit,
 ) {
-
+    val focusRequester = remember { FocusRequester() }
     var q by remember { mutableStateOf("") }
 
     LaunchedEffect(query) {
         q = query
+    }
+
+    LaunchedEffect(Unit) {
+        delay(300L)
+        focusRequester.requestFocus()
     }
 
     Column(
@@ -191,7 +200,9 @@ private fun SearchBox(
             verticalAlignment = Alignment.CenterVertically
         ) {
             OutlinedTextField(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .focusRequester(focusRequester)
+                    .weight(1f),
                 value = q,
                 onValueChange = { insert ->
                     q = insert
@@ -353,13 +364,13 @@ private fun ShoppingListRow(
                 .fillMaxWidth()
                 .clickable { onItemClick(item.productId) }
         ) {
-                ImmutableGlideImage(
-                    modifier = Modifier
-                        .size(130.dp)
-                        .border(BorderStroke(1.dp, gray_light), shape = RoundedCornerShape(size = 10.dp))
-                        .clip(shape = RoundedCornerShape(size = 10.dp)),
-                    model = item.image,
-                )
+            ImmutableGlideImage(
+                modifier = Modifier
+                    .size(130.dp)
+                    .border(BorderStroke(1.dp, gray_light), shape = RoundedCornerShape(size = 10.dp))
+                    .clip(shape = RoundedCornerShape(size = 10.dp)),
+                model = item.image,
+            )
 
             Column(
                 modifier = Modifier
@@ -475,9 +486,11 @@ private fun EmptyPage(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
+            modifier = Modifier.fillMaxSize(),
             text = label,
             color = MaterialTheme.colorScheme.primary,
             maxLines = 1,
+            textAlign = TextAlign.Center,
             overflow = TextOverflow.Ellipsis
         )
     }

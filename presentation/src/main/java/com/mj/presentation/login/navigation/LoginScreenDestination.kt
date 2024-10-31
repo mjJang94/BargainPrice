@@ -12,7 +12,6 @@ import com.mj.presentation.login.LoginScreen
 import com.mj.presentation.login.LoginViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import timber.log.Timber
 
 @Composable
 fun LoginScreenDestination(
@@ -27,11 +26,11 @@ fun LoginScreenDestination(
         proceedFlow.collect { result ->
             if (result) {
                 delay(500L)
-                Timber.d("error? 1")
                 onProceed()
+            }else {
+                viewModel.checkRequireLogin()
             }
         }
-        viewModel.checkRequireLogin()
     }
 
     LoginScreen(

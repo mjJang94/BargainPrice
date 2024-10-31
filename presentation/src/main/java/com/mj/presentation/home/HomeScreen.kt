@@ -5,6 +5,7 @@ package com.mj.presentation.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,11 +24,13 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -41,13 +44,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
-import com.mj.presentation.base.SIDE_EFFECTS_KEY
 import com.mj.core.common.compose.ImmutableGlideImage
 import com.mj.core.common.compose.appendCategoryData
 import com.mj.core.theme.BargainPriceTheme
@@ -56,6 +59,7 @@ import com.mj.core.theme.black
 import com.mj.core.theme.blue
 import com.mj.core.theme.gray
 import com.mj.core.theme.green_100
+import com.mj.core.theme.green_200
 import com.mj.core.theme.green_300
 import com.mj.core.theme.green_50
 import com.mj.core.theme.green_500
@@ -65,11 +69,12 @@ import com.mj.core.theme.white
 import com.mj.core.timeFormatDebugFull
 import com.mj.core.toPriceFormat
 import com.mj.presentation.R
+import com.mj.presentation.base.SIDE_EFFECTS_KEY
 import com.mj.presentation.home.HomeContract.Effect
 import com.mj.presentation.home.HomeContract.Event
 import com.mj.presentation.home.HomeContract.State
-import com.mj.presentation.home.HomeViewModel.PriceState
 import com.mj.presentation.home.HomeViewModel.FavoriteItem
+import com.mj.presentation.home.HomeViewModel.PriceState
 import com.mj.presentation.home.model.Pages
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -197,10 +202,47 @@ private fun HomePage(
     onSearchClick: () -> Unit,
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            modifier = Modifier.clickable(onClick = onSearchClick),
-            text = "Main!"
-        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp, bottom = 5.dp, start = 10.dp, end = 10.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    modifier = Modifier
+                        .weight(1f)
+                        .clickable(
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        ) {
+                            onSearchClick()
+                        },
+                    value = "",
+                    onValueChange = {},
+                    textStyle = TextStyle.Default.copy(fontSize = Typography.bodyMedium.fontSize),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = white,
+                        unfocusedContainerColor = white,
+                        disabledContainerColor = white,
+                        unfocusedTextColor = green_200,
+                        focusedTextColor = green_500,
+                        disabledTextColor = green_200,
+                    ),
+                    enabled = false,
+                    label = {
+                        Text(text = stringResource(id = R.string.move_to_search_label))
+                    },
+                )
+            }
+        }
     }
 }
 
